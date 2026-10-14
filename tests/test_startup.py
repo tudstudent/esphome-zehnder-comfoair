@@ -91,6 +91,30 @@ def run(climate, comfocool_enabled=True):
             ])
     actions.extend([
         {"lambda": '''
+            esphome::test_canbus::check(id(comfoair).request_pressure_property(1, 3),
+                "pressure request starts before timeout test");
+            id(test_bus).sent.clear();
+        '''},
+        {"delay": "2800ms"},
+        {"lambda": '''
+            using esphome::test_canbus::check;
+            auto &bus = *id(test_bus);
+            check(!id(comfoair).pressure_read_pending(), "scheduler expires a missing pressure reply");
+            check(bus.sent.empty(), "pressure timeout does not retry or send writes");
+            check(id(comfoair).request_pressure_property(2, 3), "a new read can start after timeout");
+            const auto sequence = (bus.sent.back().can_id >> 17) & 3;
+            const auto response_id = 0x1f000000u | (sequence << 17) | (42u << 6) | 1u;
+            bus.receive_rmi(response_id | (1u << 14), {0, 1, 2});
+            check(id(comfoair).pressure_read_pending(), "component waits for final pressure fragment");
+            bus.receive_rmi(response_id | (1u << 14), {0x81, 3});
+            check(!id(comfoair).pressure_read_pending(), "component completes ordered pressure fragments");
+            check(id(comfoair).request_pressure_property(1, 3), "read after fragments starts");
+            const auto bad_sequence = (bus.sent.back().can_id >> 17) & 3;
+            bus.receive_rmi(0x1f004000u | (bad_sequence << 17) | (42u << 6) | 1u, {1, 0});
+            check(!id(comfoair).pressure_read_pending(), "component cancels malformed fragment response");
+            bus.sent.clear();
+        '''},
+        {"lambda": '''
             auto &bus = *id(test_bus);
             bus.requests.clear();
             id(comfoair).set_request_ids({65, 67});
@@ -182,7 +206,7 @@ def run(climate, comfocool_enabled=True):
                 [str(BUILD / name / ".pioenvs" / name / "program")],
                 env={**os.environ, "ESPHOME_PREFDIR": prefs},
                 check=True,
-                timeout=15,
+                timeout=20,
             )
 
 

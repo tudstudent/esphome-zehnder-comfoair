@@ -8,7 +8,10 @@ unit but not individual property meanings; responses remain raw research data.
 It cannot send SET, factory, firmware/FUP, erase, reset, or arbitrary node/unit
 commands. It remains available under the CAN read-only guard. Only one read may
 be pending, with a 2.5-second timeout; normal user control cancels a pending read
-and takes priority so sequence wrap cannot confuse control acknowledgments.
+and takes priority. The protocol has only a two-bit sequence, not a unique
+transaction ID: a very late reply after sequence reuse cannot be distinguished
+solely by CAN addressing. Do not overlap other controllers' same-node requests
+or treat this diagnostic correlation as a safety-critical acknowledgement.
 
 Responses must match an extended non-RTR RMI reply from the known Q node 1 to
 the configured local node, with the expected sequence. Request echoes, firmware
