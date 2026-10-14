@@ -148,6 +148,7 @@ class TelemetryTests(unittest.TestCase):
         self.assertEqual(sum(row["registry"] for row in rows), 86)
         self.assertFalse([row for row in rows if row["registry"] and row["status"] != "mapped"])
         self.assertEqual(sorted(set(handlers) - {row["id"] for row in rows}), [305, 306])
+        self.assertEqual((ROOT / "docs/PDO-COVERAGE.md").read_text(encoding="utf-8"), audit.render_report(rows))
 
     def test_all_broad_pdo_filters_accept_reference_high_ids_only(self):
         for path in (ROOT / "packages").glob("*.yml"):

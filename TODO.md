@@ -38,12 +38,15 @@ declares this project's `zehnder_comfoair_q` component, ESP-IDF, and native CAN.
 
 ## Development Progress
 
-Local PR-sized branches/commits are listed in `docs/PR-PLAN.md`; nothing is pushed
-or submitted upstream yet. The pinned inventory covers 158 documented IDs and
-all 86 Python registry definitions. Base plus implemented known optional handlers
-now cover 69 registry IDs. The other 17 are 4 ComfoCool entries and 13 uncertain
-entries requiring separate work. Experimental PDOs 305/306 are outside that
-inventory and deliberately retain unscaled, unitless raw labels.
+PR-sized branches/commits and submission evidence are listed in `docs/PR-PLAN.md`.
+The owner approved starting fork pushes/upstream submissions on 2026-10-14.
+Upstream PR #107 (strict types) and #108 (analog voltage) are ready for review;
+both isolated blocks passed full fork CI. The integration stack is pushed for
+combined validation only. All 86 registry entries have handlers: ComfoCool is
+explicitly installation-gated and 13 uncertain entries are passive integer text.
+`docs/PDO-COVERAGE.md` classifies every one of the 158 reference entries; 71 are
+documented-only and PDO 69 has no declared type. PDOs 305/306 remain experimental,
+unscaled and unitless. Handler coverage is not physical validation.
 
 KD builds and OTA/API checks pass on ESPHome 2026.9.1 / ESP-IDF 5.5.5. The core
 status/timer package returns plausible normal states without payload errors.
@@ -51,8 +54,9 @@ The owner-approved fan experiment restored Auto/Medium/Normal. Normal command
 availability is restored; read-only mode is an opt-in development guard.
 Original YAML/credentials remain unchanged; a separate development YAML, validated
 OTA image, and checksum manifest are preserved locally outside Git. KD exposes
-92 API entities, including presence-gated ComfoFond readings and unitless raw
-candidates. KD reports ComfoFond absent; its -40 C/10 C defaults remain NaN.
+109 API entities, including passive diagnostics and explicitly disabled ComfoCool.
+KD reports ComfoFond absent; its -40 C/10 C defaults remain NaN. Disabled ComfoCool
+has missing-state readings even when its default frames arrive.
 Serial recovery and an
 original 2025 firmware binary are not confirmed. Preheater/analog channels were
 read as zero in the current condition; active/nonzero behavior remains untested.
@@ -117,7 +121,7 @@ direct CAN. Verify ambiguous payload representation on the actual CAN bus.
 
 ## Block 1 / PR 1 - Existing Types, States, and Safety
 
-- [ ] Review each current handler's type, signedness, length, endian conversion,
+- [x] Review each current handler's type, signedness, length, endian conversion,
   scaling, enum meaning, and unit; add type-specific width checks rather than
   accepting any supported length regardless of the PDO definition.
 - [x] Verify PDO 212's width on KD: two bytes, matching the Python registry width.
@@ -125,13 +129,13 @@ direct CAN. Verify ambiguous payload representation on the actual CAN bus.
 - [ ] Resolve PDO 213/216 power scaling: documentation examples imply /100,
   whereas aiocomfoconnect treats raw values as watts and this project's YAML
   converts raw values to kW with /1000. Use evidence before changing scaling.
-- [ ] Review PDO 65 away versus fan OFF presentation without breaking feedback
-  guards or introducing outbound commands during state synchronization.
+- [x] Review PDO 65 Away versus fan OFF: fan OFF requests Away level, not a
+  physical motor shutdown. Existing feedback guards are retained and host-tested.
 - [x] Fix reversed PDO 119/120 comments in `packages/sensors.yml`; the CAN
   dispatch currently routes exhaust 119 and supply 120 correctly.
 - [ ] Review temperature-location names and unknown enum handling; do not assert
   meanings that the reference itself marks uncertain.
-- [ ] Test unsigned/signed boundaries, negative temperatures, sentinels, malformed
+- [x] Test unsigned/signed boundaries, negative temperatures, sentinels, malformed
   frames, startup, and feedback-only operation using the existing host suite.
 - [x] Document numeric float precision and keep no-change formatting/bitsets
   outside lossy numeric-state interpretation where needed.
@@ -141,7 +145,7 @@ sites, and documented API changes; hardware-dependent findings remain pending.
 
 ## Block 2 / PR 2 - Canonical Mapping and Converter Coverage
 
-- [ ] Create one authoritative local mapping with PDO ID, reference type,
+- [x] Create one authoritative local mapping with PDO ID, reference type,
   conversion, scale, unit, enums, certainty, and upstream revision.
 - [x] Add a reproducible comparison against pinned aiocomfoconnect definitions;
   record documentation/implementation disagreements instead of copying blindly.
@@ -151,10 +155,11 @@ sites, and documented API changes; hardware-dependent findings remain pending.
   PDO 230 already has a dedicated 8-byte decoder; preserve or reuse it rather
   than replacing its integer bitset with a floating-point sensor value.
 - [x] Add boundary/width tests for all implemented integer converters; retain
-  existing constraint tests. Full Linux host/sanitizer execution remains pending.
-- [ ] Investigate support for documented PDO IDs above 1023: the schema currently
-  caps request IDs at 0x3ff and the base receive mask also constrains high bits.
-  Validate direct-CAN addressing/filter behavior before expanding either.
+  existing constraint tests. Full Linux host/sanitizer/bounds testing passed in
+  fork CI for both isolated submissions and the telemetry integration stack.
+- [x] Validate high-PDO addressing: bounded support 0-2047, exact request/namespace
+  tests, and live PDO 1304 reception on KD. No high-ID startup reads; PDO 1024
+  did not respond. See `docs/PDO-ADDRESSING.md`.
 
 Acceptance: reference drift and exclusions are auditable, and typed decoding
 does not silently lose information. Keep this separate from added telemetry.
@@ -164,16 +169,17 @@ does not silently lose information. Keep this separate from added telemetry.
 - [x] Add complete device state, filter-changing status (18), manual/fan-mode
   alternatives (56, 70, 71), RF pairing (176), and unit settings (208, 224).
 - [x] Add timer PDOs 86/87 using the existing unsigned duration helper.
-- [ ] Add optional ComfoCool timer PDO 85 with accessory validation.
+- [x] Add optional ComfoCool timer PDO 85 with explicit installation declaration;
+  software and disabled-state validation complete, installed hardware unavailable.
 - [x] Add preheater energy/current power (144/145/146), frost unbalance (228),
   bypass override (338), additional fan-mode representations (342/343), and
   analog inputs (369-372).
 - [x] Add optional ComfoFond (416-419) with presence-gated availability; validate
   absence on KD without presenting default values as measurements.
-- [ ] Validate installed ComfoFond operation and add optional ComfoCool
-  (784/785/802); assess other accessory fields individually.
-- [ ] Account for every remaining reference entry: implemented, optional raw
-  diagnostic, uncertain, unavailable on KD, or deliberately excluded.
+- [x] Add optional ComfoCool (784/785/802), disabled by default; enabled/disabled
+  host and build tests. Installed ComfoCool/ComfoFond operation remains untested.
+- [x] Classify every remaining reference entry in `docs/PDO-COVERAGE.md`, checked
+  against actual handlers/filters rather than treating a comment as coverage.
 - [x] Preserve existing optional PDO 226/230 packages and verify merging behavior;
   do not enable unsupported accessories by default.
 - [ ] Choose device/state classes and precision carefully; verify counter resets
@@ -185,13 +191,14 @@ Acceptance: each subset has tests and explicit availability/validation notes.
 
 ## Block 4 / PR 4 - Bounded Read-Only Diagnostics
 
-- [ ] Reuse existing `comfoair_dump` logs and request helpers where sufficient;
+- [x] Reuse existing `comfoair_dump` logs and request helpers where sufficient;
   add opt-in/rate-limited capture rather than a second CAN transport.
 - [x] Capture PDO IDs, raw bytes, lengths, relative timestamps, and requested versus
   spontaneous observations, including unregistered PDOs.
-- [ ] Support targeted bounded read requests; verify read-only RMI mechanisms
+- [x] Support targeted bounded read requests; verify read-only RMI mechanisms
   individually before use. No configuration writes or unbounded bus scans.
-- [ ] Create sanitized fixtures and a repeatable hardware validation procedure.
+- [x] Create synthetic/literal regression fixtures and document bounded hardware
+  validation. Keep raw captures private, not copied into tests.
 - [ ] Monitor bus load, responsiveness, uptime, and normal ventilation; keep
   diagnostics disabled or restricted for routine operation.
 
@@ -218,8 +225,10 @@ values around 103/105. These are candidates only, not identified pressure signal
   do not label unknown IDs as pressure without evidence.
 - [x] Search additional GitHub implementations/history and document provenance;
   corroborate PDO 337 manual bits on KD and retain weak accessory labels as hypotheses.
-- [ ] Add a separately reviewed, bounded read-only pressure RMI experiment for
-  documented unit 0x23; establish reply framing before interpreting properties.
+- [x] Implement/test bounded pressure GET for fixed unit 0x23 and subunits 1/2.
+  All 32 selected property reads replied: 1/2 return one-byte values; 3-16 return
+  explicit Unknown-property errors. No scale or dynamic pressure identified.
+  See `docs/PRESSURE-PROPERTY-READS.md`; do not enlarge a blind scan.
 - [x] Correlate candidates with airflow/RPM and owner-approved fan-level changes.
   Never obstruct ducts or disable safety mechanisms to stimulate readings.
 - [ ] Establish payload type, units (for example Pa), scale, location,
@@ -243,7 +252,7 @@ is not yet confirmed. Keep discovery tools and verified sensor additions separat
   request scheduling, and read-only feedback behavior.
 - [ ] Adapt baseline host tests/build tooling for Windows where needed; CI
   already exists, so extend existing coverage rather than duplicating it.
-- [ ] Validate the ESP32-C3/Ethernet KD configuration locally and on hardware
+- [x] Validate the ESP32-C3/Ethernet KD configuration locally and on hardware
   only after the required authorization. Keep pressure work independent.
 
 ## Additional Research - Zehnder Firmware Readback
@@ -263,3 +272,24 @@ is not yet confirmed. Keep discovery tools and verified sensor additions separat
 - [x] Obtain explicit KD upload permission for development/debugging.
 - [ ] Record tested versions/models and distinguish host tests from hardware tests.
 - [ ] Update documentation/examples and obtain approval before pushing/opening PRs.
+
+## Upstream Review and Remaining Gates
+
+- [x] Review all seven open upstream issues, both pre-existing open PRs, and
+  relevant merged fixes; document overlap/evidence in `docs/UPSTREAM-REVIEW.md`.
+- [x] Avoid duplicate preheater submission: existing PR #63 already covers it.
+- [x] Push focused strict-type and analog blocks, submit #107/#108, and attach
+  exact passing CI commits/runs. Do not merge automatically.
+- [ ] Final latest-stack CI and normal-operation observation after pressure/high-ID
+  changes. Earlier full CI and a 90-second bounded observation pass; latest CI
+  includes real scheduler timeout/fragment lifecycle checks.
+- [x] Archive the exact normal KD image/configuration privately with SHA-256,
+  remove the temporary pressure API action, and verify normal state after upload.
+- [ ] Prepare further independent review branches rather than submit the stacked
+  integration branch upstream. Reconcile PR #68 if its board support lands.
+- [ ] OTA encryption default migration remains a separate decision (#95); the
+  required intermediate 2026.9+ firmware must be documented before adoption.
+- [ ] Physical evidence still needed: nonzero analog/active preheater, installed
+  accessories, energy resets/wraps, pressure units/ports, and disputed power scale.
+- [ ] Firmware readback remains parked pending exact MCU/PCB/debug-pad identification
+  and separate permission/recovery review; Husky capabilities are documented.

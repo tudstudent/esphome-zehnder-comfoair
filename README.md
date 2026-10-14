@@ -14,6 +14,11 @@ See [PDO type mapping](docs/PDO-MAPPING.md) for the pinned protocol inventory,
 typed decoding, reference disagreements, and mapping regression checks.
 Additional status fields and fan timers are available through the
 [optional core telemetry packages](docs/CORE-TELEMETRY.md).
+The integrated development stack also includes [analog inputs](docs/ANALOG-INPUTS.md),
+[accessory telemetry](docs/ACCESSORY-TELEMETRY.md), and
+[passive unidentified fields](docs/UNIDENTIFIED-TELEMETRY.md).
+See the [complete coverage classification](docs/PDO-COVERAGE.md) and
+[upstream issue/PR review](docs/UPSTREAM-REVIEW.md) for scope and validation limits.
 
 See specific guides for each device:
 - [Olimex ESP32-EVB](docs/esp32-evb.md)

@@ -16,7 +16,7 @@ jobs:
         run: |
           python3 scripts/generate_pdo_map.py --check
           python3 scripts/generate_unidentified_telemetry.py --check
-          python3 scripts/check_pdo_coverage.py --check
+          uv run --with-requirements requirements.txt python scripts/check_pdo_coverage.py --check --report
           python3 -m unittest discover -s tests -p 'test_pdo_mapping.py'
           python3 tests/test_pdo_decode.py
           python3 tests/test_pdo_decode.py --sanitize
