@@ -26,6 +26,16 @@ class TestCanbus : public canbus::Canbus {
     this->loop();
   }
 
+  void receive_rmi(uint32_t id, const std::vector<uint8_t> &data) {
+    canbus::CanFrame frame{};
+    frame.use_extended_id = true;
+    frame.can_id = id;
+    frame.can_data_length_code = data.size();
+    std::copy(data.begin(), data.end(), frame.data);
+    incoming_.push_back(frame);
+    this->loop();
+  }
+
  protected:
   bool setup_internal() override { return true; }
   canbus::Error send_message(canbus::CanFrame *frame) override {

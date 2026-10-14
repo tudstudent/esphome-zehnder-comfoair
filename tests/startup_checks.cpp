@@ -3,6 +3,157 @@ using esphome::test_canbus::check;
 auto &bus = *id(test_bus);
 check(bus.sent.empty(), "setup must not write ventilation settings");
 bus.sent.clear();
+// Keep the deferred boot query out of the independently scheduled RTR checks.
+id(comfoair).set_request_ids({});
+
+id(comfoair).set_read_only(true);
+id(comfoair).set_level(3);
+id(comfoair).set_temp_profile(zehnder_comfoair_q::TEMP_PROFILE_WARM);
+check(bus.sent.empty(), "read-only mode suppresses every command path");
+check(!id(comfoair).set_filter_lifetime(300) && bus.sent.empty(),
+      "read-only mode cannot report a suppressed property write as sent");
+const auto request_count = bus.requests.size();
+id(comfoair).request_pdo(212);
+check(bus.requests.size() == request_count + 1, "read-only mode still permits PDO read requests");
+bus.requests.clear();
+id(comfoair).set_read_only(false);
+const auto high_request_count = bus.requests.size();
+id(comfoair).request_pdo(1024);
+check(bus.requests.size() == high_request_count + 1 && bus.requests.back().can_id == ((1024u << 14) | 0x6a) &&
+      bus.requests.back().remote_transmission_request, "high PDO emits the correct extended RTR address");
+id(comfoair).request_pdo(2048);
+check(bus.requests.size() == high_request_count + 1, "out-of-range direct request is rejected");
+bus.requests.clear();
+
+id(comfoair).set_read_only(true);
+check(!id(comfoair).request_pressure_property(0, 3) && !id(comfoair).request_pressure_property(3, 3) &&
+      !id(comfoair).request_pressure_property(1, 0) && !id(comfoair).request_pressure_property(1, 17),
+      "pressure getter rejects subunit/property values outside fixed read scope");
+check(id(comfoair).request_pressure_property(1, 3) && id(comfoair).pressure_read_pending(),
+      "read-only mode permits a fixed pressure GET");
+check(bus.sent.size() == 1 && bus.sent[0].can_data_length_code == 5 &&
+      std::vector<uint8_t>(bus.sent[0].data, bus.sent[0].data + 5) == std::vector<uint8_t>({1, 0x23, 1, 0x10, 3}),
+      "pressure read sends GET only, never firmware/factory/set commands");
+check(!id(comfoair).request_pressure_property(2, 3), "pressure reads cannot overlap");
+const auto sequence = (bus.sent.back().can_id >> 17) & 3;
+bus.receive_rmi(0x1f000000u | (sequence << 17) | (42u << 6) | 1u, {0x67, 0});
+check(!id(comfoair).pressure_read_pending(), "matching response ends the request");
+id(comfoair).set_read_only(false);
+check(id(comfoair).request_pressure_property(2, 3), "next pressure read can start");
+id(comfoair).set_level(1);
+check(!id(comfoair).pressure_read_pending(), "a real control request cancels pending diagnostics");
+bus.sent.clear();
+
+for (const auto &entry : std::vector<std::pair<uint8_t, std::string>>{{7, "Away"}, {8, "DFC"}, {1, "Normal"}}) {
+  bus.receive(16, entry.first);
+  check(id(device_state).state == entry.second, "complete device state distinguishes Away and DFC");
+}
+bus.receive(18, 2);
+check(id(filter_changing_status).state == "Changing Filter", "filter-changing status enum");
+bus.receive(18, std::vector<uint8_t>{1, 0});
+check(id(filter_changing_status).state == "Changing Filter", "wrong-width filter status preserves state");
+bus.receive(56, 255);
+check(id(manual_mode_status).state == "Auto", "manual-mode unsigned sentinel");
+bus.receive(70, 1);
+bus.receive(71, 1);
+check(id(supply_fan_mode_setting).state == "Supply Only" && id(exhaust_fan_mode_setting).state == "Exhaust Only",
+      "setting fan modes use distinct 0/1 enums");
+bus.receive(176, 4);
+check(id(rf_pairing_status).state == "Aborted", "RF pairing enum");
+bus.receive(208, 1);
+bus.receive(224, 1);
+check(id(device_temperature_unit).state == "Fahrenheit" && id(device_airflow_unit).state == "kg/h",
+      "unit enums include Fahrenheit and kg/h");
+bus.receive(228, 128);
+check(id(frost_protection_unbalance_raw).state == 128, "uncertain frost field stays unsigned and unscaled");
+for (const auto &entry : std::vector<std::pair<uint16_t, text_sensor::TextSensor *>>{
+         {338, id(bypass_override_status)}, {342, id(supply_fan_override_status)}, {343, id(exhaust_fan_override_status)}}) {
+  bus.receive(entry.first, std::vector<uint8_t>{2, 0, 0, 0});
+  const auto previous = entry.second->state;
+  check(previous != "2", "known UINT32 override enum is labelled");
+  bus.receive(entry.first, std::vector<uint8_t>{0});
+  check(entry.second->state == previous, "override fields reject short payloads");
+}
+bus.receive(86, std::vector<uint8_t>{0xff, 0xff, 0xff, 0xff});
+bus.receive(87, std::vector<uint8_t>{60, 0, 0, 0});
+check(id(next_supply_change_in).state == "n/a" && id(next_exhaust_change_in).state == "1m0s",
+      "supply/exhaust timers format exact UINT32 values");
+check(bus.sent.empty(), "optional telemetry never sends commands");
+for (const auto &entry : std::vector<std::pair<uint16_t, sensor::Sensor *>>{
+         {144, id(preheater_energy_ytd)}, {145, id(preheater_energy_total)}, {146, id(preheater_power)}}) {
+  bus.receive(entry.first, std::vector<uint8_t>{0xff, 0xff});
+  check(entry.second->state == 65535, "preheater fields retain unsigned UINT16 range");
+  bus.receive(entry.first, std::vector<uint8_t>{1});
+  check(entry.second->state == 65535, "preheater fields reject short frames");
+}
+check(bus.sent.empty(), "preheater telemetry cannot write heater settings");
+for (const auto &entry : std::vector<std::pair<uint16_t, sensor::Sensor *>>{
+         {369, id(analog_input_1)}, {370, id(analog_input_2)}, {371, id(analog_input_3)}, {372, id(analog_input_4)}}) {
+  bus.receive(entry.first, 75);
+  check(std::abs(entry.second->state - 7.5f) < 0.001f, "analog inputs scale tenths of a volt once");
+  bus.receive(entry.first, std::vector<uint8_t>{1, 0});
+  check(std::abs(entry.second->state - 7.5f) < 0.001f, "analog inputs reject wrong widths");
+}
+check(bus.sent.empty(), "analog telemetry never sends commands");
+for (const auto &entry : std::vector<std::pair<uint16_t, sensor::Sensor *>>{
+         {305, id(unidentified_pdo_305_raw)}, {306, id(unidentified_pdo_306_raw)}}) {
+  bus.receive(entry.first, std::vector<uint8_t>{0x67, 0});
+  check(entry.second->state == 103, "unidentified channels expose unscaled raw bits");
+  bus.receive(entry.first, std::vector<uint8_t>{0xff, 0xff});
+  check(entry.second->state == 65535, "raw unsigned presentation does not assert physical signedness");
+  bus.receive(entry.first, std::vector<uint8_t>{1});
+  check(entry.second->state == 65535, "unidentified channels reject short frames");
+  id(comfoair).publish_pdo_state(entry.second, std::vector<uint8_t>{1, 0}, entry.first);
+  check(entry.second->state == 65535, "unknown PDO cannot use the known-type publishing path");
+}
+check(bus.sent.empty(), "unidentified raw telemetry cannot send commands");
+bus.receive(416, std::vector<uint8_t>{0xc8, 0});
+check(std::isnan(id(comfofond_outdoor_temperature).state), "unknown accessory presence cannot publish a temperature");
+bus.receive(419, 1);
+bus.receive(416, std::vector<uint8_t>{0xc8, 0});
+bus.receive(417, std::vector<uint8_t>{0x85, 0xff});
+bus.receive(418, 25);
+check(id(comfofond_present).state && id(comfofond_outdoor_temperature).state == 20.0f &&
+      std::abs(id(comfofond_ground_temperature).state + 12.3f) < 0.001f &&
+      id(comfofond_state_percentage).state == 25, "present ComfoFond decodes signed temperatures and state");
+bus.receive(419, 2);
+check(id(comfofond_present).state, "invalid BOOL cannot change accessory presence");
+bus.receive(419, 0);
+check(!id(comfofond_present).state && std::isnan(id(comfofond_outdoor_temperature).state) &&
+      std::isnan(id(comfofond_ground_temperature).state) && std::isnan(id(comfofond_state_percentage).state),
+      "absent ComfoFond immediately invalidates previous readings");
+bus.receive(416, std::vector<uint8_t>{0x70, 0xfe}); // Typical absent-device -40 C default.
+check(std::isnan(id(comfofond_outdoor_temperature).state), "absent accessory defaults are not real temperatures");
+check(bus.sent.empty(), "accessory feedback never writes configuration");
+bus.receive(784, 1);
+bus.receive(785, 1);
+bus.receive(802, std::vector<uint8_t>{0x2c, 1});
+bus.receive(85, std::vector<uint8_t>{0xff, 0xff, 0xff, 0xff});
+if (${comfocool_installed}) {
+  check(id(comfocool_state).state == "On" && id(comfocool_compressor_state).state &&
+        id(comfocool_condenser_temperature).state == 30.0f && id(next_comfocool_change_in).state == "n/a",
+        "configured ComfoCool decodes state, temperature and exact timer");
+} else {
+  check(!id(comfocool_state).has_state() && !id(comfocool_compressor_state).has_state() &&
+        !id(comfocool_condenser_temperature).has_state() && !id(next_comfocool_change_in).has_state(),
+        "unconfigured ComfoCool cannot publish apparent readings from default/off frames");
+}
+bus.receive(785, 2);
+bus.receive(802, std::vector<uint8_t>{1});
+if (${comfocool_installed})
+  check(id(comfocool_compressor_state).state && id(comfocool_condenser_temperature).state == 30.0f,
+        "ComfoCool rejects malformed BOOL/temperature without replacing state");
+check(bus.sent.empty(), "ComfoCool telemetry never controls cooling");
+bus.receive(337, std::vector<uint8_t>{0xff, 0xff, 0xff, 0xff});
+check(id(unidentified_pdo_337).state == "4294967295", "unidentified UINT32 text retains every bit");
+bus.receive(384, std::vector<uint8_t>{0x70, 0xfe});
+check(id(unidentified_pdo_384).state == "-400", "unidentified signed value is not assigned guessed units or scale");
+bus.receive(384, std::vector<uint8_t>{1});
+check(id(unidentified_pdo_384).state == "-400", "unidentified telemetry preserves state on wrong width");
+bus.receive(402, 1);
+bus.receive(402, 2);
+check(id(unidentified_pdo_402).state == "1", "unidentified BOOL retains valid raw meaning only");
+check(bus.sent.empty(), "passive unidentified telemetry cannot send controls");
 
 // Literal payloads reconstruct through the actual component's public CAN boundary.
 uint32_t previous_sequence = 0;
@@ -50,10 +201,18 @@ for (const auto &entry : std::vector<std::pair<uint16_t, sensor::Sensor *>>{
 }
 bus.receive(276, std::vector<uint8_t>{0x85, 0xff}); // -123 tenths C
 check(std::abs(id(outdoor_air_temp).state + 12.3f) < 0.001f, "INT16 PDO preserves negative temperature");
-for (const auto &payload : std::vector<std::vector<uint8_t>>{{}, {1, 2, 3}, {1, 2, 3, 4, 5}}) {
+for (const auto &payload : std::vector<std::vector<uint8_t>>{{}, {1}, {1, 2, 3}, {1, 2, 3, 4}, {1, 2, 3, 4, 5}}) {
   bus.receive(129, payload);
-  check(id(energy_ytd).raw_state == 40000, "unsupported PDO widths do not publish invented state");
+  check(id(energy_ytd).raw_state == 40000, "wrong PDO widths do not publish invented state");
 }
+bus.receive(212, std::vector<uint8_t>{233, 0});
+check(std::abs(id(profile_target_temp).state - 23.3f) < 0.001f, "verified two-byte target temperature");
+bus.receive(212, std::vector<uint8_t>{1});
+check(std::abs(id(profile_target_temp).state - 23.3f) < 0.001f, "one-byte target payload cannot replace valid state");
+bus.receive(212, std::vector<uint8_t>{0x2c, 0x01});
+check(std::abs(id(profile_target_temp).state - 30.0f) < 0.001f, "registry INT16 target temperature remains supported");
+bus.receive(212, std::vector<uint8_t>{1, 2, 3, 4});
+check(std::abs(id(profile_target_temp).state - 30.0f) < 0.001f, "unverified target temperature widths cannot replace state");
 check(bus.sent.empty(), "numeric PDO decoding never sends control commands");
 
 bus.receive(81, std::vector<uint8_t>{0x00, 0x00, 0x00, 0x80});

@@ -5,10 +5,21 @@ This project lets you use an ESP32 device with a CAN interface to interact with 
 - [M5Stack AtomS3 Lite](docs/m5stack-atoms3.md) with Mini CAN Unit (TJA1051T/3) feeding off the 12V supply of the ventilation unit
 
 
-It exposes all known information and airflow control through the [ESPHome native API](https://esphome.io/components/api.html), and allows you to integrate the unit in Home Assistant as depicted below:
+It exposes ventilation telemetry and airflow control through the [ESPHome native API](https://esphome.io/components/api.html), and allows you to integrate the unit in Home Assistant as depicted below:
 ![Home Assistant screenshot](./docs/ha_screen.png)
 
 ## Hardware
+
+See [PDO type mapping](docs/PDO-MAPPING.md) for the pinned protocol inventory,
+typed decoding, reference disagreements, and mapping regression checks.
+Additional status fields and fan timers are available through the
+[optional core telemetry packages](docs/CORE-TELEMETRY.md).
+The integrated development stack also includes [analog inputs](docs/ANALOG-INPUTS.md),
+[accessory telemetry](docs/ACCESSORY-TELEMETRY.md), and
+[passive unidentified fields](docs/UNIDENTIFIED-TELEMETRY.md).
+See the [complete coverage classification](docs/PDO-COVERAGE.md) and
+[upstream issue/PR review](docs/UPSTREAM-REVIEW.md) for scope and validation limits.
+
 See specific guides for each device:
 - [Olimex ESP32-EVB](docs/esp32-evb.md)
 - [M5Stack AtomS3 Lite](docs/m5stack-atoms3.md)

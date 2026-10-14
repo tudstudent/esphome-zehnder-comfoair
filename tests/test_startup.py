@@ -12,8 +12,8 @@ ROOT = Path(__file__).resolve().parents[1]
 BUILD = ROOT / "tests/.esphome/startup"
 
 
-def run(climate):
-    name = "startup-climate" if climate else "startup-no-climate"
+def run(climate, comfocool_enabled=True):
+    name = ("startup-climate" if climate else "startup-no-climate") + ("-cool-on" if comfocool_enabled else "-cool-off")
     packages = ["binary_sensors", "sensors", "text_sensors", "select", "switch", "fan"]
     if climate:
         packages.append("climate")
@@ -21,6 +21,14 @@ def run(climate):
     packages.append("airflow_constraints")
     packages.append("filter_lifetime")
     packages.append("temperature_profile_mode")
+    packages.append("core_telemetry")
+    packages.append("fan_timers")
+    packages.append("preheater_telemetry")
+    packages.append("analog_inputs")
+    packages.append("unidentified_pressure_candidates")
+    packages.append("comfofond_telemetry")
+    packages.append("comfocool_telemetry")
+    packages.append("unidentified_telemetry")
     bus = yaml.safe_load((ROOT / "packages/canbus.yml").read_text())["canbus"][0]
     bus.update(platform="test_canbus", id="test_bus")
     del bus["tx_pin"], bus["rx_pin"]
@@ -83,6 +91,30 @@ def run(climate):
             ])
     actions.extend([
         {"lambda": '''
+            esphome::test_canbus::check(id(comfoair).request_pressure_property(1, 3),
+                "pressure request starts before timeout test");
+            id(test_bus).sent.clear();
+        '''},
+        {"delay": "2800ms"},
+        {"lambda": '''
+            using esphome::test_canbus::check;
+            auto &bus = *id(test_bus);
+            check(!id(comfoair).pressure_read_pending(), "scheduler expires a missing pressure reply");
+            check(bus.sent.empty(), "pressure timeout does not retry or send writes");
+            check(id(comfoair).request_pressure_property(2, 3), "a new read can start after timeout");
+            const auto sequence = (bus.sent.back().can_id >> 17) & 3;
+            const auto response_id = 0x1f000000u | (sequence << 17) | (42u << 6) | 1u;
+            bus.receive_rmi(response_id | (1u << 14), {0, 1, 2});
+            check(id(comfoair).pressure_read_pending(), "component waits for final pressure fragment");
+            bus.receive_rmi(response_id | (1u << 14), {0x81, 3});
+            check(!id(comfoair).pressure_read_pending(), "component completes ordered pressure fragments");
+            check(id(comfoair).request_pressure_property(1, 3), "read after fragments starts");
+            const auto bad_sequence = (bus.sent.back().can_id >> 17) & 3;
+            bus.receive_rmi(0x1f004000u | (bad_sequence << 17) | (42u << 6) | 1u, {1, 0});
+            check(!id(comfoair).pressure_read_pending(), "component cancels malformed fragment response");
+            bus.sent.clear();
+        '''},
+        {"lambda": '''
             auto &bus = *id(test_bus);
             bus.requests.clear();
             id(comfoair).set_request_ids({65, 67});
@@ -122,7 +154,7 @@ def run(climate):
         '''
     })
     config = {
-        "substitutions": {"filter_time": "1s", "filter_send_every": "1", "filter_window_size": "1", "comfoair_canbus_id": "test_bus"},
+        "substitutions": {"filter_time": "1s", "filter_send_every": "1", "filter_window_size": "1", "comfoair_canbus_id": "test_bus", "comfocool_installed": "true" if comfocool_enabled else "false"},
         "esphome": {
             "name": name,
             "build_path": str(BUILD / name),
@@ -135,7 +167,7 @@ def run(climate):
             {"source": {"type": "local", "path": str(ROOT / "tests/components")}},
         ],
         "canbus": [bus],
-        "zehnder_comfoair_q": {"id": "comfoair", "canbus_id": "test_bus", "request_ids": [65, 67], "request_interval": "never"},
+        "zehnder_comfoair_q": {"id": "comfoair", "canbus_id": "test_bus", "request_ids": [65, 67, 16, 65], "request_interval": "never"},
     }
     if os.environ.get("ESPHOME_TEST_SANITIZE") == "1":
         config["esphome"]["platformio_options"] = {
@@ -159,7 +191,11 @@ def run(climate):
     path.write_text(yaml.safe_dump(config, sort_keys=False) + includes)
     merged = read_config({})
     assert merged is not None
-    assert sorted(int(pdo) for pdo in merged["zehnder_comfoair_q"]["request_ids"]) == [65, 67, 226, 230]
+    expected_requests = [16, 18, 56, 65, 67, 70, 71, 86, 87, 144, 145, 146, 176, 208, 224,
+                         226, 228, 230, 305, 306, 338, 342, 343, 369, 370, 371, 372, 416, 417, 418, 419]
+    if comfocool_enabled:
+        expected_requests += [85, 784, 785, 802]
+    assert sorted(int(pdo) for pdo in merged["zehnder_comfoair_q"]["request_ids"]) == sorted(expected_requests)
     assert len(merged["canbus"]) == 1
     subprocess.run([sys.executable, "-m", "esphome", "compile", str(path)], check=True)
     # Fresh preferences per run; do not inherit the workstation's host state.
@@ -170,11 +206,12 @@ def run(climate):
                 [str(BUILD / name / ".pioenvs" / name / "program")],
                 env={**os.environ, "ESPHOME_PREFDIR": prefs},
                 check=True,
-                timeout=15,
+                timeout=20,
             )
 
 
 if __name__ == "__main__":
-    run(False)
-    if "--no-climate" not in sys.argv:
-        run(True)
+    for comfocool_enabled in (False, True):
+        run(False, comfocool_enabled)
+        if "--no-climate" not in sys.argv:
+            run(True, comfocool_enabled)

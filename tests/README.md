@@ -1,5 +1,18 @@
 # Host C++ regression tests
 
+The PDO reference/type table also has offline, hardware-independent checks:
+
+```sh
+python scripts/generate_pdo_map.py --check
+python -m unittest discover -s tests -p 'test_pdo_mapping.py'
+python tests/test_pdo_decode.py
+```
+
+The pure decoder tests compile the production headers with a local C++17
+compiler, including MSVC from a Visual Studio developer shell on Windows. They
+do not emulate the decoder in Python. To re-audit the pinned upstream reference
+with network access, run `python scripts/sync_pdo_reference.py --check`.
+
 Protocol framing, sequence rollover and RTR scheduling are also covered. See
 `test-audit.md` for the contract inventory. Run `ESPHOME_TEST_SANITIZE=1 make test`
 for ASan/UBSan; the existing CI test job runs normal and sanitized configurations.

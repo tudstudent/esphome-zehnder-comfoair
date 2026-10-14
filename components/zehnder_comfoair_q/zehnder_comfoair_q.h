@@ -2,7 +2,11 @@
 
 #include <esphome.h>
 #include "airflow_constraints.h"
+#include "pdo_types.h"
+#include "pdo_address.h"
+#include "rmi_read_response.h"
 #include <cmath>
+#include <string_view>
 
 using namespace esphome; // needed for ESP_LOGx to work
 using namespace esphome::canbus;
@@ -56,9 +60,12 @@ namespace zehnder_comfoair_q
         void set_request_ids(const std::vector<uint16_t> &request_ids) { request_ids_ = request_ids; }
         void set_request_delay(uint32_t request_delay) { request_delay_ = request_delay; }
         void set_local_node_id(uint8_t local_node_id) { local_node_id_ = local_node_id; }
+        void set_read_only(bool read_only) { read_only_ = read_only; }
 
         void request_all_pdos();
         void request_pdo(uint16_t pdo_id);
+        bool request_pressure_property(int subunit, int property);
+        bool pressure_read_pending() const { return pressure_read_.active(); }
 
         void set_level(uint8_t level);
         void set_level_float(float state);
@@ -106,7 +113,7 @@ namespace zehnder_comfoair_q
         }
         bool set_filter_lifetime(float days)
         {
-            if (!std::isfinite(days) || days < 0 || days > 65535 || std::floor(days) != days)
+            if (read_only_ || !std::isfinite(days) || days < 0 || days > 65535 || std::floor(days) != days)
                 return false;
             send_command_set_property_uint16(0x1c, 0x01, 0x03, uint16_t(days));
             return true; // Valid request sent, not a device acknowledgement.
@@ -129,26 +136,34 @@ namespace zehnder_comfoair_q
         }
 
         template <class T>
-        static void publish_state(T state_id, const std::vector<uint8_t> &can_message, bool is_unsigned = false)
+        static void publish_pdo_state(T state_id, const std::vector<uint8_t> &can_message,
+                                      uint16_t pdo_id)
         {
-            const auto size = can_message.size();
-            if (size != 1 && size != 2 && size != 4)
+            PdoValue value;
+            if (!decode_pdo(pdo_id, can_message, value))
             {
-                ESP_LOGW("comfoair", "Unable to infer type from can message size: %zu", size);
+                ESP_LOGW(TAG, "Invalid payload for PDO %u (length %zu)", pdo_id, can_message.size());
                 return;
             }
-            uint32_t value = 0;
-            for (size_t i = 0; i < size; i++)
-                value |= uint32_t(can_message[i]) << (8 * i);
-            if (size == 1 || is_unsigned)
-                publish_state(state_id, value);
+            if (value.is_signed)
+                publish_state(state_id, value.signed_value());
             else
+                publish_state(state_id, value.raw);
+        }
+
+        template <class T>
+        static void publish_raw_state(T state_id, const std::vector<uint8_t> &can_message, PdoType representation)
+        {
+            PdoValue value;
+            if (!decode_pdo_value(representation, can_message, value))
             {
-                int64_t signed_value = value;
-                if (value & (uint32_t(1) << (size * 8 - 1)))
-                    signed_value -= int64_t(1) << (size * 8);
-                publish_state(state_id, signed_value);
+                ESP_LOGW(TAG, "Invalid raw payload (length %zu)", can_message.size());
+                return;
             }
+            if (value.is_signed)
+                publish_state(state_id, value.signed_value());
+            else
+                publish_state(state_id, value.raw);
         }
 
         static __attribute((always_inline)) inline uint16_t get_pdo_id_from_can_id(uint32_t can_id)
@@ -168,9 +183,9 @@ namespace zehnder_comfoair_q
             formatted->publish_state(seconds_to_human_readable(seconds));
         }
 
-        static std::string seconds_to_human_readable(int64_t seconds)
+        static std::string seconds_to_human_readable(uint32_t seconds)
         {
-            if (seconds < 0 || seconds == 0xffffffffLL)
+            if (seconds == UINT32_MAX)
                 return "n/a";
 
             std::string output;
@@ -206,6 +221,10 @@ namespace zehnder_comfoair_q
         void request_next_pdo_();
 
         uint8_t local_node_id_ = 0x2a;
+        bool read_only_ = false;
+        RmiReadResponse pressure_read_;
+        uint8_t pressure_read_subunit_ = 0, pressure_read_property_ = 0;
+        void receive_pressure_read_(uint32_t can_id, bool extended, bool rtr, const std::vector<uint8_t> &data);
 
         // Builds the CAN id of a command frame sent from this node to the ComfoAir Q unit (node 0x01).
         uint32_t get_command_can_id_(bool is_multi_message_command, uint8_t sequence_number);
@@ -216,7 +235,7 @@ namespace zehnder_comfoair_q
     };
 }
 
-#define comfoair_on_frame_case(pdo_id, comfoair_component, sensor_id, unsigned) \
+#define comfoair_on_frame_case(pdo_id, comfoair_component, sensor_id) \
     case pdo_id:                                                                \
-        comfoair_component->publish_state(sensor_id, x, unsigned);              \
+        comfoair_component->publish_pdo_state(sensor_id, x, pdo_id);             \
         break;
