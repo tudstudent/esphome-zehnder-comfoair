@@ -135,3 +135,40 @@ regions, and configuration elsewhere require separate identification.
 Whether CAN-mediated readback can access an image that is debug-protected is a
 separate unknown. Interface capability is not evidence that a particular board
 is readable. The owner need not purchase a LAN C to pursue the hardware route.
+
+## Existing Hardware: ChipWhisperer-Husky
+
+The owner has a ChipWhisperer-Husky and will not buy an ST-Link. Use that existing
+hardware rather than adding a purchase requirement. Official Husky documentation
+explicitly lists JTAG/SWD through OpenOCD and a built-in STM32 UART interface:
+
+https://chipwhisperer.readthedocs.io/en/latest/Capture/ChipWhisperer-Husky.html
+https://chipwhisperer.readthedocs.io/en/latest/debugging.html
+https://chipwhisperer.readthedocs.io/en/latest/Capture/20-pin-connector.html
+
+Preferred route: Husky's MPSSE/SWD mode through OpenOCD, using the documented
+USERIO/debug connector and correct STM32F1 target definition. The vendor warns
+that MPSSE has not been tested on every target, so support is not a guarantee of
+readability. On Windows, disconnect the Python process before OpenOCD claims
+the Husky USB device. Do not enable MPSSE, power rails, clocks, or target signals
+until wiring/board identity and voltage have been confirmed.
+
+Alternative genuine transport: the STM32 factory UART bootloader, if the exact
+part supports it and BOOT/reset/UART pins are accessible on the isolated spare.
+ChipWhisperer's `programmer_stm32fserial.py` implements `cmdReadMemory` (0x11)
+and bounded `readMemory` transfers. This requires boot-mode attachment, not
+writing firmware. Readout protection can still prevent extraction.
+
+https://github.com/newaetech/chipwhisperer/blob/develop/software/chipwhisperer/hardware/naeusb/programmer_stm32fserial.py
+https://github.com/newaetech/chipwhisperer/blob/develop/docs/source/debugging.rst
+
+Do NOT use `program`, `autoProgram`, `writeMemory`, erase/protect/unprotect, GDB
+`load`, or tutorial commands such as `flash write_image erase`. The examined
+programmer's `program()` retries a write failure by calling erase; an
+`erase=False` option on a programming wrapper is not a safe readback guarantee.
+Use a separately reviewed read-only sequence with no automatic programming paths.
+
+No voltage/clock glitching, fault injection, or protection bypass is part of this
+plan. Do not connect the glitch/crowbar output. No target wiring or Husky control
+commands have been performed. Exact MCU marking, PCB role, and debug-pad photos
+remain the prerequisites for a concrete read-only setup.
