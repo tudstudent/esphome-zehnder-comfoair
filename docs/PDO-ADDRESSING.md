@@ -19,3 +19,9 @@ No new high-ID startup reads are enabled. A documented high-ID targeted read
 requires a separate bounded hardware check; lack of a response is not proof of
 an addressing error or support. IDs whose physical meaning is unknown remain
 unlabelled. Do not derive a type, unit, or accessory presence from a zero reply.
+
+On 2026-10-14, a bounded KD read returned a one-byte response for PDO 1304
+through the updated receive filter. PDO 1024 did not respond in the observation
+window. This confirms high-ID transport for 1304 on this unit, not availability
+of every high ID. No high-ID startup requests were added. Normal readings and
+Auto/Medium/Normal remained intact, with no captured decoding errors.
