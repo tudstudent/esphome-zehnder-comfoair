@@ -197,8 +197,10 @@ a separate PR. No new firmware may be installed without explicit permission.
 ## Block 5 / PR 5 Series - Pressure Discovery
 
 Owner reports two likely Sensirion differential-pressure sensors (possibly
-SDP810/SDP816; exact model unconfirmed), one on the intake side and one on the
-house side. Do not assume their differential port/reference arrangement or units.
+SDP810; exact model/range unconfirmed), one on the intake side and one on the
+house side. The owner confirms I2C for the internal sensor network, including
+pressure sensors, ruling out analog SDP816. The ESP32 bridge still uses CAN.
+Do not assume their differential port/reference arrangement or CAN units.
 The initial KD read-only capture observed undocumented PDOs 305/306 as 2-byte
 values around 103/105. These are candidates only, not identified pressure signals.
 

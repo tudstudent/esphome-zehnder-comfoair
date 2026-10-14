@@ -3,8 +3,10 @@
 These channels are experimental and are NOT confirmed pressure measurements.
 They are not added to the aiocomfoconnect-derived type inventory or stock package.
 
-The owner reports two likely Sensirion differential-pressure sensors on a Q600,
-possibly SDP810/SDP816; exact models and differential port locations are unknown.
+The owner reports two likely Sensirion differential-pressure sensors on a Q600
+and confirms the internal sensor network, including these sensors, uses I2C.
+The exact digital sensor models/ranges and differential port locations remain
+unknown. SDP810 remains a candidate; SDP816 is excluded because it is analog.
 Only the authorized Q600 was accessed. No ducts were blocked, fan balance changed,
 or safety mechanisms disabled.
 
@@ -46,7 +48,8 @@ Zehnder CAN representation.
   It also reports sensor temperature; the datasheet cautions that this is bulk
   silicon temperature, not necessarily the measured air temperature.
   https://sensirion.com/media/documents/90500156/6167E43B/Sensirion_Differential_Pressure_Datasheet_SDP8xx_Digital.pdf
-- SDP816 is an analog SDP8xx sensor, NOT an I2C equivalent of SDP810. Its
+- SDP816 is excluded by the owner's confirmed I2C interface. It is an analog
+  SDP8xx sensor, NOT an I2C equivalent of SDP810. Its
   ratiometric voltage represents differential pressure. The OCS pin selects
   linear or square-root output; section 3.1 gives the corresponding conversions
   and ranges. The 500 Pa linear configuration covers -50 to +500 Pa, while the
@@ -62,6 +65,9 @@ Do not divide CAN PDOs 305/306 by 60 or 240, or change them to a signed pressure
 type, merely because of these sensor datasheets. The unit can convert, clamp,
 temperature-compensate, or re-encode the readings before CAN transmission. The
 exact model, port plumbing, CAN units, and signal identity still need evidence.
+The confirmed internal I2C interface must not be confused with this ESP32
+bridge's external CAN interface: firmware-generated PDOs need not preserve
+the sensor's raw I2C words, signedness, or scale factor.
 
 ## Optional Raw Package
 
