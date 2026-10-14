@@ -129,6 +129,24 @@ class TelemetryTests(unittest.TestCase):
         finally:
             CORE.reset()
 
+    def test_unidentified_package_is_passive_and_unscaled(self):
+        package = yaml.load((ROOT / "packages/unidentified_telemetry.yml").read_text(), Loader=Loader)
+        self.assertNotIn("zehnder_comfoair_q", package)
+        self.assertEqual(len(package["text_sensor"]), 13)
+        for entity in package["text_sensor"]:
+            self.assertTrue(entity["disabled_by_default"])
+            self.assertNotIn("filters", entity)
+            self.assertNotIn("unit_of_measurement", entity)
+
+    def test_reference_coverage_is_complete(self):
+        spec = importlib.util.spec_from_file_location("check_coverage", ROOT / "scripts/check_pdo_coverage.py")
+        audit = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(audit)
+        rows, handlers = audit.inventory()
+        self.assertEqual(sum(row["registry"] for row in rows), 86)
+        self.assertFalse([row for row in rows if row["registry"] and row["status"] != "mapped"])
+        self.assertEqual(sorted(set(handlers) - {row["id"] for row in rows}), [305, 306])
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -15,6 +15,8 @@ jobs:
       - name: Check PDO reference table and pure decoders
         run: |
           python3 scripts/generate_pdo_map.py --check
+          python3 scripts/generate_unidentified_telemetry.py --check
+          python3 scripts/check_pdo_coverage.py --check
           python3 -m unittest discover -s tests -p 'test_pdo_mapping.py'
           python3 tests/test_pdo_decode.py
           python3 tests/test_pdo_decode.py --sanitize
@@ -49,6 +51,7 @@ jobs:
           - tests/firmware/comfofond_telemetry.yml
           - tests/firmware/comfocool_telemetry.yml
           - tests/firmware/comfocool_disabled.yml
+          - tests/firmware/unidentified_telemetry.yml
     steps:
       - uses: actions/checkout@v7.0.1
       - name: Mock secrets.yaml from example

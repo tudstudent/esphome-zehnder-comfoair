@@ -118,6 +118,16 @@ if (${comfocool_installed})
   check(id(comfocool_compressor_state).state && id(comfocool_condenser_temperature).state == 30.0f,
         "ComfoCool rejects malformed BOOL/temperature without replacing state");
 check(bus.sent.empty(), "ComfoCool telemetry never controls cooling");
+bus.receive(337, std::vector<uint8_t>{0xff, 0xff, 0xff, 0xff});
+check(id(unidentified_pdo_337).state == "4294967295", "unidentified UINT32 text retains every bit");
+bus.receive(384, std::vector<uint8_t>{0x70, 0xfe});
+check(id(unidentified_pdo_384).state == "-400", "unidentified signed value is not assigned guessed units or scale");
+bus.receive(384, std::vector<uint8_t>{1});
+check(id(unidentified_pdo_384).state == "-400", "unidentified telemetry preserves state on wrong width");
+bus.receive(402, 1);
+bus.receive(402, 2);
+check(id(unidentified_pdo_402).state == "1", "unidentified BOOL retains valid raw meaning only");
+check(bus.sent.empty(), "passive unidentified telemetry cannot send controls");
 
 // Literal payloads reconstruct through the actual component's public CAN boundary.
 uint32_t previous_sequence = 0;

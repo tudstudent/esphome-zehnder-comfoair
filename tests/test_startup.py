@@ -28,6 +28,7 @@ def run(climate, comfocool_enabled=True):
     packages.append("unidentified_pressure_candidates")
     packages.append("comfofond_telemetry")
     packages.append("comfocool_telemetry")
+    packages.append("unidentified_telemetry")
     bus = yaml.safe_load((ROOT / "packages/canbus.yml").read_text())["canbus"][0]
     bus.update(platform="test_canbus", id="test_bus")
     del bus["tx_pin"], bus["rx_pin"]
