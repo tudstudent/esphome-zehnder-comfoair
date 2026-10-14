@@ -32,6 +32,37 @@ and stay outside Git; this table contains only sanitized aggregate observations.
 The existing upstream discussion does not establish IDs or a scale:
 https://github.com/michaelarnauts/aiocomfoconnect/issues/51
 
+## Manufacturer Datasheet Findings
+
+Verified against Sensirion documentation on 2026-10-14; the installed pressure
+sensor model is still unconfirmed. These findings describe the chips, not the
+Zehnder CAN representation.
+
+- SDP810 is in the digital SDP8xx family: I2C, differential pressure of air or
+  non-aggressive gas, with bidirectional 500 Pa or 125 Pa variants. It measures
+  the difference between its two pressure ports, not absolute/barometric pressure.
+  The pressure signal is a signed two's-complement integer. Section 6.5 specifies
+  division by 60 for the 500 Pa variant or 240 for the 125 Pa variant to obtain Pa.
+  It also reports sensor temperature; the datasheet cautions that this is bulk
+  silicon temperature, not necessarily the measured air temperature.
+  https://sensirion.com/media/documents/90500156/6167E43B/Sensirion_Differential_Pressure_Datasheet_SDP8xx_Digital.pdf
+- SDP816 is an analog SDP8xx sensor, NOT an I2C equivalent of SDP810. Its
+  ratiometric voltage represents differential pressure. The OCS pin selects
+  linear or square-root output; section 3.1 gives the corresponding conversions
+  and ranges. The 500 Pa linear configuration covers -50 to +500 Pa, while the
+  square-root configuration is fully bidirectional, -500 to +500 Pa.
+  https://sensirion.com/media/documents/68DF0025/6667FEEF/DP_DS_SDP8xx_analog.pdf
+
+Differential pressure can be used to derive airflow with system-specific
+calibration. Each installed sensor has its own pair of pressure taps; two sensors
+do not establish which taps are on the supply/extract side or whether either
+signal represents static duct, fan, or flow-restriction pressure.
+
+Do not divide CAN PDOs 305/306 by 60 or 240, or change them to a signed pressure
+type, merely because of these sensor datasheets. The unit can convert, clamp,
+temperature-compensate, or re-encode the readings before CAN transmission. The
+exact model, port plumbing, CAN units, and signal identity still need evidence.
+
 ## Optional Raw Package
 
 ```yaml
