@@ -13,6 +13,12 @@ upstream base before opening PRs rather than opening a cumulative mega-PR.
 | Preheater energy/power | `feat/preheater-telemetry` | `80f6294` | Requires typed decoding; independent optional package |
 | Analog inputs | `feat/analog-input-telemetry` | `e9728bd` | Requires typed decoding; independent optional package |
 | Unidentified pressure candidates | `experiment/unidentified-pressure-pdos` | `42e2e88` | Experimental raw data only; no Pa/side claims |
+| Strict-type cleanup | `refactor/strict-pdo-types` | `b484dd3` | Required cleanup: one type per PDO, three-argument handlers, explicit raw representation; no compatibility paths |
+
+Do not submit the earlier type-mapping branch as-is: it contained compatibility
+paths that the strict cleanup removes. Fold the final strict implementation into
+the type-mapping PR and distribute its mechanical consumer updates across their
+respective PRs. Compatibility behavior is not an optional feature to retain.
 
 The development test harness also includes earlier diagnostic helpers, so a
 standalone PR may need small test-context adjustments when rebased. Production
@@ -29,6 +35,9 @@ malformed hexadecimal suffixes; include it with the diagnostic change set.
 - KD-specific ESP32-C3/ESP-IDF/DM9051 builds, encrypted API reconnection, OTA,
   read-only suppression, optional core readings, and bounded fan changes have
   been exercised on the authorized Q600.
+- The strict implementation is also built/uploaded and checked on KD: 88 entities,
+  target 23.3 C, valid no-change timers, raw candidate readings, Auto/Medium/Normal,
+  and no decoding errors. PDO 212 accepts only its declared two-byte INT16 type.
 - The combined normal-control image exposes 88 API entities. Preheater and
   analog fields returned device-supplied zeros; active/nonzero inputs have not
   been stimulated. PDO 212 returned a two-byte 233 sample matching 23.3 C.

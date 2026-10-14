@@ -63,6 +63,9 @@ and do not establish the downstream PDO encoding.
 
 Pressure evidence and remaining uncertainty are in `docs/PRESSURE-DISCOVERY.md`.
 No calibrated Pa values or physical side assignments are asserted.
+Strict-type cleanup (`b484dd3`) removes all alternate types, legacy inference,
+signedness flags, and compatibility overloads. It is validated on KD and must be
+included in the final type-mapping PR, not left as an optional follow-up.
 
 ## Initial Baseline
 
