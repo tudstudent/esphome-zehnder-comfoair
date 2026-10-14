@@ -87,6 +87,19 @@ class TelemetryTests(unittest.TestCase):
             self.assertIn("publish_raw_state", frame["then"][0]["lambda"])
             self.assertIn("PdoType::UINT16", frame["then"][0]["lambda"])
 
+    def test_comfofond_presence_and_availability(self):
+        package = yaml.load((ROOT / "packages/comfofond_telemetry.yml").read_text(), Loader=Loader)
+        self.assertEqual(package["zehnder_comfoair_q"]["request_ids"], [419, 416, 417, 418])
+        for sensor in package["sensor"]:
+            gate = sensor["filters"][0]["lambda"]
+            self.assertIn("comfofond_present).has_state()", gate)
+            self.assertIn("comfofond_present).state", gate)
+            self.assertIn("NAN", gate)
+        invalidation = package["binary_sensor"][0]["on_state"]["then"][0]["lambda"]
+        for sensor in package["sensor"]:
+            self.assertIn(f"id({sensor['id']}).publish_state(NAN)", invalidation)
+        self.assertNotIn("send_command", invalidation)
+
 
 if __name__ == "__main__":
     unittest.main()

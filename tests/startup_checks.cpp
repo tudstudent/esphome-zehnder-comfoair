@@ -81,6 +81,24 @@ for (const auto &entry : std::vector<std::pair<uint16_t, sensor::Sensor *>>{
   check(entry.second->state == 65535, "unknown PDO cannot use the known-type publishing path");
 }
 check(bus.sent.empty(), "unidentified raw telemetry cannot send commands");
+bus.receive(416, std::vector<uint8_t>{0xc8, 0});
+check(std::isnan(id(comfofond_outdoor_temperature).state), "unknown accessory presence cannot publish a temperature");
+bus.receive(419, 1);
+bus.receive(416, std::vector<uint8_t>{0xc8, 0});
+bus.receive(417, std::vector<uint8_t>{0x85, 0xff});
+bus.receive(418, 25);
+check(id(comfofond_present).state && id(comfofond_outdoor_temperature).state == 20.0f &&
+      std::abs(id(comfofond_ground_temperature).state + 12.3f) < 0.001f &&
+      id(comfofond_state_percentage).state == 25, "present ComfoFond decodes signed temperatures and state");
+bus.receive(419, 2);
+check(id(comfofond_present).state, "invalid BOOL cannot change accessory presence");
+bus.receive(419, 0);
+check(!id(comfofond_present).state && std::isnan(id(comfofond_outdoor_temperature).state) &&
+      std::isnan(id(comfofond_ground_temperature).state) && std::isnan(id(comfofond_state_percentage).state),
+      "absent ComfoFond immediately invalidates previous readings");
+bus.receive(416, std::vector<uint8_t>{0x70, 0xfe}); // Typical absent-device -40 C default.
+check(std::isnan(id(comfofond_outdoor_temperature).state), "absent accessory defaults are not real temperatures");
+check(bus.sent.empty(), "accessory feedback never writes configuration");
 
 // Literal payloads reconstruct through the actual component's public CAN boundary.
 uint32_t previous_sequence = 0;

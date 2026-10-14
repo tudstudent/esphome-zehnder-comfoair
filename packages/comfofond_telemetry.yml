@@ -1,0 +1,70 @@
+# Optional ComfoFond/GHE readings. Presence gates all accessory measurements.
+substitutions:
+  comfoair_canbus_id: comfoair_canbus
+
+zehnder_comfoair_q:
+  request_ids: [419, 416, 417, 418]
+
+binary_sensor:
+  - platform: template
+    id: comfofond_present
+    name: "ComfoFond Present"
+    entity_category: diagnostic
+    on_state:
+      then:
+        - lambda: |-
+            if (!x) {
+              id(comfofond_outdoor_temperature).publish_state(NAN);
+              id(comfofond_ground_temperature).publish_state(NAN);
+              id(comfofond_state_percentage).publish_state(NAN);
+            }
+
+sensor:
+  - platform: template
+    id: comfofond_outdoor_temperature
+    name: "ComfoFond Outdoor Temperature"
+    update_interval: never
+    device_class: temperature
+    state_class: measurement
+    unit_of_measurement: "\u00b0C"
+    accuracy_decimals: 1
+    filters:
+      - lambda: |-
+          return id(comfofond_present).has_state() && id(comfofond_present).state ? x * 0.1f : NAN;
+  - platform: template
+    id: comfofond_ground_temperature
+    name: "ComfoFond Ground Temperature"
+    update_interval: never
+    device_class: temperature
+    state_class: measurement
+    unit_of_measurement: "\u00b0C"
+    accuracy_decimals: 1
+    filters:
+      - lambda: |-
+          return id(comfofond_present).has_state() && id(comfofond_present).state ? x * 0.1f : NAN;
+  - platform: template
+    id: comfofond_state_percentage
+    name: "ComfoFond State Percentage"
+    update_interval: never
+    state_class: measurement
+    unit_of_measurement: "%"
+    accuracy_decimals: 0
+    filters:
+      - lambda: |-
+          return id(comfofond_present).has_state() && id(comfofond_present).state ? x : NAN;
+
+canbus:
+  - id: !extend ${comfoair_canbus_id}
+    on_frame:
+      - can_id: 0x40
+        can_id_mask: 0x1f003fc0
+        use_extended_id: true
+        remote_transmission_request: false
+        then:
+          - lambda: |-
+              switch (id(comfoair)->get_pdo_id_from_can_id (can_id)) {
+                  comfoair_on_frame_case(416, id(comfoair), comfofond_outdoor_temperature);
+                  comfoair_on_frame_case(417, id(comfoair), comfofond_ground_temperature);
+                  comfoair_on_frame_case(418, id(comfoair), comfofond_state_percentage);
+                  comfoair_on_frame_case(419, id(comfoair), comfofond_present);
+              }
