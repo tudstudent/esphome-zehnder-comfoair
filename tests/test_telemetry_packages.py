@@ -75,6 +75,17 @@ class TelemetryTests(unittest.TestCase):
         code = package["canbus"][0]["on_frame"][0]["then"][0]["lambda"]
         self.assertNotIn("send_command", code)
 
+    def test_pressure_candidates_make_no_unit_or_side_claim(self):
+        package = yaml.load((ROOT / "packages/unidentified_pressure_candidates.yml").read_text(), Loader=Loader)
+        self.assertEqual(package["zehnder_comfoair_q"]["request_ids"], [305, 306])
+        for sensor in package["sensor"]:
+            self.assertNotIn("unit_of_measurement", sensor)
+            self.assertNotIn("device_class", sensor)
+            self.assertNotIn("filters", sensor)
+        self.assertEqual([f["can_id"] >> 14 for f in package["canbus"][0]["on_frame"]], [305, 306])
+        for frame in package["canbus"][0]["on_frame"]:
+            self.assertIn("x.size() == 2", frame["then"][0]["lambda"])
+
 
 if __name__ == "__main__":
     unittest.main()

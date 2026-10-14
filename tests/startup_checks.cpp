@@ -69,6 +69,16 @@ for (const auto &entry : std::vector<std::pair<uint16_t, sensor::Sensor *>>{
   check(std::abs(entry.second->state - 7.5f) < 0.001f, "analog inputs reject wrong widths");
 }
 check(bus.sent.empty(), "analog telemetry never sends commands");
+for (const auto &entry : std::vector<std::pair<uint16_t, sensor::Sensor *>>{
+         {305, id(unidentified_pdo_305_raw)}, {306, id(unidentified_pdo_306_raw)}}) {
+  bus.receive(entry.first, std::vector<uint8_t>{0x67, 0});
+  check(entry.second->state == 103, "unidentified channels expose unscaled raw bits");
+  bus.receive(entry.first, std::vector<uint8_t>{0xff, 0xff});
+  check(entry.second->state == 65535, "raw unsigned presentation does not assert physical signedness");
+  bus.receive(entry.first, std::vector<uint8_t>{1});
+  check(entry.second->state == 65535, "unidentified channels reject short frames");
+}
+check(bus.sent.empty(), "unidentified raw telemetry cannot send commands");
 
 // Literal payloads reconstruct through the actual component's public CAN boundary.
 uint32_t previous_sequence = 0;

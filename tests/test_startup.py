@@ -25,6 +25,7 @@ def run(climate):
     packages.append("fan_timers")
     packages.append("preheater_telemetry")
     packages.append("analog_inputs")
+    packages.append("unidentified_pressure_candidates")
     bus = yaml.safe_load((ROOT / "packages/canbus.yml").read_text())["canbus"][0]
     bus.update(platform="test_canbus", id="test_bus")
     del bus["tx_pin"], bus["rx_pin"]
@@ -164,7 +165,7 @@ def run(climate):
     merged = read_config({})
     assert merged is not None
     assert sorted(int(pdo) for pdo in merged["zehnder_comfoair_q"]["request_ids"]) == [
-        16, 18, 56, 65, 67, 70, 71, 86, 87, 144, 145, 146, 176, 208, 224, 226, 228, 230, 338, 342, 343,
+        16, 18, 56, 65, 67, 70, 71, 86, 87, 144, 145, 146, 176, 208, 224, 226, 228, 230, 305, 306, 338, 342, 343,
         369, 370, 371, 372]
     assert len(merged["canbus"]) == 1
     subprocess.run([sys.executable, "-m", "esphome", "compile", str(path)], check=True)

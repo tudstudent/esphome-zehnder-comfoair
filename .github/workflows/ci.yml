@@ -45,6 +45,7 @@ jobs:
           - tests/firmware/core_telemetry.yml
           - tests/firmware/preheater_telemetry.yml
           - tests/firmware/analog_inputs.yml
+          - tests/firmware/unidentified_pressure_candidates.yml
     steps:
       - uses: actions/checkout@v7.0.1
       - name: Mock secrets.yaml from example

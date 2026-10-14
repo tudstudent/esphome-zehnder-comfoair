@@ -1,0 +1,40 @@
+# Experimental raw channels observed on Q600. No pressure unit/side is claimed.
+substitutions:
+  comfoair_canbus_id: comfoair_canbus
+
+zehnder_comfoair_q:
+  request_ids: [305, 306]
+
+sensor:
+  - platform: template
+    id: unidentified_pdo_305_raw
+    name: "Unidentified PDO 305 Raw (Unsigned)"
+    entity_category: diagnostic
+    update_interval: never
+    accuracy_decimals: 0
+  - platform: template
+    id: unidentified_pdo_306_raw
+    name: "Unidentified PDO 306 Raw (Unsigned)"
+    entity_category: diagnostic
+    update_interval: never
+    accuracy_decimals: 0
+
+canbus:
+  - id: !extend ${comfoair_canbus_id}
+    on_frame:
+      - can_id: 0x4c4040 # PDO 305
+        can_id_mask: 0x1fffffc0
+        use_extended_id: true
+        remote_transmission_request: false
+        then:
+          - lambda: |-
+              if (x.size() == 2)
+                id(comfoair)->publish_state(id(unidentified_pdo_305_raw), x, true);
+      - can_id: 0x4c8040 # PDO 306
+        can_id_mask: 0x1fffffc0
+        use_extended_id: true
+        remote_transmission_request: false
+        then:
+          - lambda: |-
+              if (x.size() == 2)
+                id(comfoair)->publish_state(id(unidentified_pdo_306_raw), x, true);
