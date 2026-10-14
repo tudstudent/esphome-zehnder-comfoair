@@ -216,6 +216,10 @@ values around 103/105. These are candidates only, not identified pressure signal
   exposed through PDO/direct CAN or read-only RMI at all.
 - [ ] Research candidates in upstream protocol notes and related implementations;
   do not label unknown IDs as pressure without evidence.
+- [x] Search additional GitHub implementations/history and document provenance;
+  corroborate PDO 337 manual bits on KD and retain weak accessory labels as hypotheses.
+- [ ] Add a separately reviewed, bounded read-only pressure RMI experiment for
+  documented unit 0x23; establish reply framing before interpreting properties.
 - [x] Correlate candidates with airflow/RPM and owner-approved fan-level changes.
   Never obstruct ducts or disable safety mechanisms to stimulate readings.
 - [ ] Establish payload type, units (for example Pa), scale, location,

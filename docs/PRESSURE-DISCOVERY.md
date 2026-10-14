@@ -30,6 +30,20 @@ differential-pressure signal used for airflow measurement/control. This is
 supporting evidence, not independent calibration: either value might instead
 be a calculated proxy, and balanced fan operation cannot prove side assignment.
 
+Closer timestamp matching (flow samples within 1.5 seconds of each candidate,
+same fan phase, excluding the first 10 seconds) gives stronger channel association:
+
+| Pair | Samples | Mean flow / sqrt(raw) | Relative standard deviation |
+| --- | ---: | ---: | ---: |
+| Exhaust flow 119 / candidate 305 | 26 | 29.926 | 0.23% |
+| Supply flow 120 / candidate 306 | 30 | 29.894 | 0.27% |
+| Exhaust flow 119 / candidate 306 | 30 | 30.093 | 3.58% |
+| Supply flow 120 / candidate 305 | 27 | 29.862 | 3.58% |
+
+Thus 305 is strongly exhaust-flow-related and 306 supply-flow-related in this
+capture. This does not identify the physical taps or independently prove pressure
+units: both quantities may come from the same sensor/calculation pipeline.
+
 The test restored Auto/Medium/Normal. Raw captures contain private API details
 and stay outside Git; this table contains only sanitized aggregate observations.
 
@@ -125,3 +139,6 @@ Incorrect frame widths are ignored. There are no control automations.
 - Validate applicable unit/firmware variants and record limitations.
 
 Until then these remain diagnostic raw channels, not calibrated Pa sensors.
+
+Further GitHub findings and the scoped RMI-read investigation are recorded in
+`ADDITIONAL-PROTOCOL-EVIDENCE.md`; a menu display is not required to pursue them.
