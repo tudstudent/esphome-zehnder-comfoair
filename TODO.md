@@ -196,10 +196,14 @@ a separate PR. No new firmware may be installed without explicit permission.
 
 ## Block 5 / PR 5 Series - Pressure Discovery
 
-Owner reports two likely Sensirion differential-pressure sensors (possibly
-SDP810; exact model/range unconfirmed), one on the intake side and one on the
-house side. The owner confirms I2C for the internal sensor network, including
-pressure sensors, ruling out analog SDP816. The ESP32 bridge still uses CAN.
+Owner identifies `SDP511-500Pa` on the inspected older pressure PCB; do not assume
+that KD and every revision use the same part. Two pressure sensors are reported,
+one on the intake side and one on the house side. The owner confirms I2C for the
+internal sensor network, ruling out analog SDP816. The ESP32 bridge still uses CAN.
+Manufacturer documentation gives SDP5xx signed raw output and a standard /60 Pa
+conversion, but that must not be applied blindly to Zehnder's generated CAN PDOs.
+The manufacturer's drop-in replacement is SDP611-500Pa; SDP8xx is mechanically
+equivalent but uses different I2C commands. See the pressure discovery evidence.
 Do not assume their differential port/reference arrangement or CAN units.
 The initial KD read-only capture observed undocumented PDOs 305/306 as 2-byte
 values around 103/105. These are candidates only, not identified pressure signals.

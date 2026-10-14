@@ -4,6 +4,9 @@ Work is committed locally, not pushed and not submitted upstream. The developmen
 branches are currently stacked so one combined firmware can validate them. Each
 functional commit can be reviewed separately; split/rebase onto the chosen
 upstream base before opening PRs rather than opening a cumulative mega-PR.
+The owner confirms this workflow: build on our integrated work during development,
+then provide a separate PR for each main block so reviewers can choose their own
+acceptance order and integration approach. Keep necessary dependencies explicit.
 
 | Change set | Branch | Functional commit | Dependency/scope |
 | --- | --- | --- | --- |

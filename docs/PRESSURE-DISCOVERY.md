@@ -3,10 +3,12 @@
 These channels are experimental and are NOT confirmed pressure measurements.
 They are not added to the aiocomfoconnect-derived type inventory or stock package.
 
-The owner reports two likely Sensirion differential-pressure sensors on a Q600
-and confirms the internal sensor network, including these sensors, uses I2C.
-The exact digital sensor models/ranges and differential port locations remain
-unknown. SDP810 remains a candidate; SDP816 is excluded because it is analog.
+The owner reports two Sensirion differential-pressure sensors and confirms the
+internal sensor network, including pressure sensors, uses I2C. The inspected
+older pressure PCB is marked `SDP511-500Pa`. Its identity must not automatically
+be attributed to every unit or hardware revision; KD's exact installed marking
+and the pressure-tap locations still need confirmation. SDP8xx on newer units is
+an owner hypothesis. Analog SDP816 is excluded by the confirmed I2C interface.
 Only the authorized Q600 was accessed. No ducts were blocked, fan balance changed,
 or safety mechanisms disabled.
 
@@ -36,9 +38,36 @@ https://github.com/michaelarnauts/aiocomfoconnect/issues/51
 
 ## Manufacturer Datasheet Findings
 
+### Identified Older Sensor: SDP511-500Pa
+
+Sensirion's SDP600 Series datasheet explicitly covers SDP6xx/5xx. It identifies
+SDP511 as an I2C tube-connected, low-cost mass-flow-temperature-compensated
+differential-pressure sensor. Its calibrated range is 0 to +500 Pa. The datasheet
+notes that SDP5xx can also report negative differential pressure, but its accuracy
+in that range is unspecified.
+
+Section 2 gives the standard SDP5xx scale factor as 60 counts/Pa (with a note that
+other configurations can differ). Section 5.1 specifies signed two's-complement
+output. The standard sensor-level conversion is therefore `DP = signed_raw / 60`.
+Section 5.3 explains that the output is still differential pressure, but its
+temperature compensation is adapted for mass-flow measurement. It is not simply
+an absolute-pressure sensor or a direct airflow reading.
+
+https://sensirion.com/media/documents/63859DD0/6166CF0E/Sensirion_Differential_Pressure_Datasheet_SDP600Series.pdf
+
+Sensirion's January 2026 discontinuation notice lists SDP511 and states that
+**SDP611-500Pa is its drop-in replacement**. The SDP800 family is mechanically
+equivalent but has a **different I2C command set**; it is not a command-compatible
+drop-in replacement. Internal firmware/board changes must be distinguished from
+the separate question of whether Zehnder retains the same CAN PDO representation.
+
+https://sensirion.com/media/documents/414C6E44/698330CD/Sensirion_Differential_Pressure_SDP5xx_PTN260201_EOL.pdf
+
+### Possible Newer Digital Sensors
+
 Verified against Sensirion documentation on 2026-10-14; the installed pressure
-sensor model is still unconfirmed. These findings describe the chips, not the
-Zehnder CAN representation.
+sensor model in KD is still unconfirmed. These findings describe the chips, not
+the Zehnder CAN representation.
 
 - SDP810 is in the digital SDP8xx family: I2C, differential pressure of air or
   non-aggressive gas, with bidirectional 500 Pa or 125 Pa variants. It measures
@@ -62,7 +91,7 @@ do not establish which taps are on the supply/extract side or whether either
 signal represents static duct, fan, or flow-restriction pressure.
 
 Do not divide CAN PDOs 305/306 by 60 or 240, or change them to a signed pressure
-type, merely because of these sensor datasheets. The unit can convert, clamp,
+type, merely because of these sensor datasheets or the older PCB marking. The unit can convert, clamp,
 temperature-compensate, or re-encode the readings before CAN transmission. The
 exact model, port plumbing, CAN units, and signal identity still need evidence.
 The confirmed internal I2C interface must not be confused with this ESP32

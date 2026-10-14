@@ -65,7 +65,10 @@ python tests/test_pdo_decode.py
 
 ## Sensor I2C Output Is Not PDO Encoding
 
-The owner reports SHT30 and, in some units, SHT20 temperature/humidity sensors.
+The owner reports SHT20 on the older PCB and SHT30 on newer machines, and
+suggests SHT31 may also fit. That hardware interchangeability is not independently
+established by this work. SHT3x family compatibility must not be conflated with
+an SHT20-to-SHT3x drop-in: I2C addresses, commands, and raw conversion differ.
 Manufacturer documents verify that they use digital I2C, but this bridge reads
 Zehnder CAN messages, not those sensors' I2C registers.
 
