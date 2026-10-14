@@ -99,6 +99,25 @@ check(!id(comfofond_present).state && std::isnan(id(comfofond_outdoor_temperatur
 bus.receive(416, std::vector<uint8_t>{0x70, 0xfe}); // Typical absent-device -40 C default.
 check(std::isnan(id(comfofond_outdoor_temperature).state), "absent accessory defaults are not real temperatures");
 check(bus.sent.empty(), "accessory feedback never writes configuration");
+bus.receive(784, 1);
+bus.receive(785, 1);
+bus.receive(802, std::vector<uint8_t>{0x2c, 1});
+bus.receive(85, std::vector<uint8_t>{0xff, 0xff, 0xff, 0xff});
+if (${comfocool_installed}) {
+  check(id(comfocool_state).state == "On" && id(comfocool_compressor_state).state &&
+        id(comfocool_condenser_temperature).state == 30.0f && id(next_comfocool_change_in).state == "n/a",
+        "configured ComfoCool decodes state, temperature and exact timer");
+} else {
+  check(!id(comfocool_state).has_state() && !id(comfocool_compressor_state).has_state() &&
+        !id(comfocool_condenser_temperature).has_state() && !id(next_comfocool_change_in).has_state(),
+        "unconfigured ComfoCool cannot publish apparent readings from default/off frames");
+}
+bus.receive(785, 2);
+bus.receive(802, std::vector<uint8_t>{1});
+if (${comfocool_installed})
+  check(id(comfocool_compressor_state).state && id(comfocool_condenser_temperature).state == 30.0f,
+        "ComfoCool rejects malformed BOOL/temperature without replacing state");
+check(bus.sent.empty(), "ComfoCool telemetry never controls cooling");
 
 // Literal payloads reconstruct through the actual component's public CAN boundary.
 uint32_t previous_sequence = 0;

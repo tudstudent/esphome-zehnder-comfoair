@@ -100,6 +100,35 @@ class TelemetryTests(unittest.TestCase):
             self.assertIn(f"id({sensor['id']}).publish_state(NAN)", invalidation)
         self.assertNotIn("send_command", invalidation)
 
+    def test_comfocool_requires_explicit_hardware_declaration(self):
+        package = yaml.load((ROOT / "packages/comfocool_telemetry.yml").read_text(), Loader=Loader)
+        self.assertEqual(package["substitutions"]["comfocool_installed"], "false")
+        requests = package["zehnder_comfoair_q"]["request_ids"]
+        self.assertIn("comfocool_installed == 'true'", requests)
+        self.assertIn("else []", requests)
+        code = package["canbus"][0]["on_frame"][0]["then"][0]["lambda"]
+        self.assertIn('if (installed != "true") return', code)
+        self.assertIn("static_assert", code)
+        self.assertNotIn("send_command", code)
+
+    def test_comfocool_real_substitution_merge(self):
+        from esphome.config import read_config
+        from esphome.core import CORE
+        import shutil
+        secrets = ROOT / "tests/firmware/secrets.yaml"
+        if not secrets.exists():
+            shutil.copy2(ROOT / "secrets.yaml.example", secrets)
+        try:
+            for name, expected in (("comfocool_telemetry", [85, 784, 785, 802]), ("comfocool_disabled", [])):
+                CORE.reset()
+                CORE.config_path = ROOT / f"tests/firmware/{name}.yml"
+                config = read_config({})
+                self.assertIsNotNone(config)
+                ids = [int(pdo) for pdo in config["zehnder_comfoair_q"]["request_ids"]]
+                self.assertEqual([pdo for pdo in ids if pdo in (85, 784, 785, 802)], expected)
+        finally:
+            CORE.reset()
+
 
 if __name__ == "__main__":
     unittest.main()

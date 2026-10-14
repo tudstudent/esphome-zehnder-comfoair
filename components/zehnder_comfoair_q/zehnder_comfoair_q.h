@@ -4,6 +4,7 @@
 #include "airflow_constraints.h"
 #include "pdo_types.h"
 #include <cmath>
+#include <string_view>
 
 using namespace esphome; // needed for ESP_LOGx to work
 using namespace esphome::canbus;

@@ -47,6 +47,8 @@ jobs:
           - tests/firmware/analog_inputs.yml
           - tests/firmware/unidentified_pressure_candidates.yml
           - tests/firmware/comfofond_telemetry.yml
+          - tests/firmware/comfocool_telemetry.yml
+          - tests/firmware/comfocool_disabled.yml
     steps:
       - uses: actions/checkout@v7.0.1
       - name: Mock secrets.yaml from example

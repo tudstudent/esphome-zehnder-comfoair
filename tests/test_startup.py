@@ -12,8 +12,8 @@ ROOT = Path(__file__).resolve().parents[1]
 BUILD = ROOT / "tests/.esphome/startup"
 
 
-def run(climate):
-    name = "startup-climate" if climate else "startup-no-climate"
+def run(climate, comfocool_enabled=True):
+    name = ("startup-climate" if climate else "startup-no-climate") + ("-cool-on" if comfocool_enabled else "-cool-off")
     packages = ["binary_sensors", "sensors", "text_sensors", "select", "switch", "fan"]
     if climate:
         packages.append("climate")
@@ -27,6 +27,7 @@ def run(climate):
     packages.append("analog_inputs")
     packages.append("unidentified_pressure_candidates")
     packages.append("comfofond_telemetry")
+    packages.append("comfocool_telemetry")
     bus = yaml.safe_load((ROOT / "packages/canbus.yml").read_text())["canbus"][0]
     bus.update(platform="test_canbus", id="test_bus")
     del bus["tx_pin"], bus["rx_pin"]
@@ -128,7 +129,7 @@ def run(climate):
         '''
     })
     config = {
-        "substitutions": {"filter_time": "1s", "filter_send_every": "1", "filter_window_size": "1", "comfoair_canbus_id": "test_bus"},
+        "substitutions": {"filter_time": "1s", "filter_send_every": "1", "filter_window_size": "1", "comfoair_canbus_id": "test_bus", "comfocool_installed": "true" if comfocool_enabled else "false"},
         "esphome": {
             "name": name,
             "build_path": str(BUILD / name),
@@ -165,9 +166,11 @@ def run(climate):
     path.write_text(yaml.safe_dump(config, sort_keys=False) + includes)
     merged = read_config({})
     assert merged is not None
-    assert sorted(int(pdo) for pdo in merged["zehnder_comfoair_q"]["request_ids"]) == [
-        16, 18, 56, 65, 67, 70, 71, 86, 87, 144, 145, 146, 176, 208, 224, 226, 228, 230, 305, 306, 338, 342, 343,
-        369, 370, 371, 372, 416, 417, 418, 419]
+    expected_requests = [16, 18, 56, 65, 67, 70, 71, 86, 87, 144, 145, 146, 176, 208, 224,
+                         226, 228, 230, 305, 306, 338, 342, 343, 369, 370, 371, 372, 416, 417, 418, 419]
+    if comfocool_enabled:
+        expected_requests += [85, 784, 785, 802]
+    assert sorted(int(pdo) for pdo in merged["zehnder_comfoair_q"]["request_ids"]) == sorted(expected_requests)
     assert len(merged["canbus"]) == 1
     subprocess.run([sys.executable, "-m", "esphome", "compile", str(path)], check=True)
     # Fresh preferences per run; do not inherit the workstation's host state.
@@ -183,6 +186,7 @@ def run(climate):
 
 
 if __name__ == "__main__":
-    run(False)
-    if "--no-climate" not in sys.argv:
-        run(True)
+    for comfocool_enabled in (False, True):
+        run(False, comfocool_enabled)
+        if "--no-climate" not in sys.argv:
+            run(True, comfocool_enabled)
