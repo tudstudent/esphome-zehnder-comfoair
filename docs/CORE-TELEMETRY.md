@@ -44,3 +44,15 @@ values and is not used to determine that sentinel.
 RF pairing or other states not exercised on the test hardware need separate
 validation. Reading a field is not authorization to start pairing, change
 filters, or activate a fan-mode override.
+
+## Preheater Energy and Power
+
+`packages/preheater_telemetry.yml` independently enables year/total energy
+(PDO 144/145, kWh) and current preheater power (PDO 146, W). All three are
+UINT16 values. The package exposes no heater controls and does not force heating
+to validate a reading. Zero power is expected when the preheater is inactive.
+
+Energy entities use the same `total_increasing` convention as the base energy
+sensors. Year resets and 16-bit counter wraps can occur; no software lifetime
+accumulator is synthesized. Active-heating and counter-reset behavior require
+additional seasonal validation.

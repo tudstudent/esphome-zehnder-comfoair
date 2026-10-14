@@ -53,6 +53,14 @@ bus.receive(87, std::vector<uint8_t>{60, 0, 0, 0});
 check(id(next_supply_change_in).state == "n/a" && id(next_exhaust_change_in).state == "1m0s",
       "supply/exhaust timers format exact UINT32 values");
 check(bus.sent.empty(), "optional telemetry never sends commands");
+for (const auto &entry : std::vector<std::pair<uint16_t, sensor::Sensor *>>{
+         {144, id(preheater_energy_ytd)}, {145, id(preheater_energy_total)}, {146, id(preheater_power)}}) {
+  bus.receive(entry.first, std::vector<uint8_t>{0xff, 0xff});
+  check(entry.second->state == 65535, "preheater fields retain unsigned UINT16 range");
+  bus.receive(entry.first, std::vector<uint8_t>{1});
+  check(entry.second->state == 65535, "preheater fields reject short frames");
+}
+check(bus.sent.empty(), "preheater telemetry cannot write heater settings");
 
 // Literal payloads reconstruct through the actual component's public CAN boundary.
 uint32_t previous_sequence = 0;

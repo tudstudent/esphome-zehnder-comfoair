@@ -57,6 +57,15 @@ class TelemetryTests(unittest.TestCase):
             self.assertFalse(frame["remote_transmission_request"])
             self.assertIn("publish_duration_state", frame["then"][0]["lambda"])
 
+    def test_preheater_declared_types_and_units(self):
+        package = yaml.load((ROOT / "packages/preheater_telemetry.yml").read_text(), Loader=Loader)
+        self.assertEqual(package["zehnder_comfoair_q"]["request_ids"], [144, 145, 146])
+        self.assertEqual([sensor["unit_of_measurement"] for sensor in package["sensor"]], ["kWh", "kWh", "W"])
+        code = package["canbus"][0]["on_frame"][0]["then"][0]["lambda"]
+        self.assertNotIn("send_command", code)
+        for pdo in (144, 145, 146):
+            self.assertIn(f"comfoair_on_frame_case({pdo},", code)
+
 
 if __name__ == "__main__":
     unittest.main()

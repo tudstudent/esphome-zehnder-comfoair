@@ -43,6 +43,7 @@ jobs:
           - tests/firmware/filter_lifetime.yml
           - tests/firmware/temperature_profile_mode.yml
           - tests/firmware/core_telemetry.yml
+          - tests/firmware/preheater_telemetry.yml
     steps:
       - uses: actions/checkout@v7.0.1
       - name: Mock secrets.yaml from example
