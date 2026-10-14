@@ -4,6 +4,10 @@ namespace zehnder_comfoair_q
 {
     void ZehnderComfoAirQ::setup()
     {
+        if (parent_ != nullptr)
+            parent_->add_callback([this](uint32_t id, bool extended, bool rtr, const std::vector<uint8_t> &data) {
+                receive_pressure_read_(id, extended, rtr, data);
+            });
         // do a first request of all PDOs some time after starting (helpful for long intervals)
         this->set_timeout(1000 * 10, [this]()
                           { this->update(); });
@@ -54,6 +58,41 @@ namespace zehnder_comfoair_q
         send_command_set_timer(true, 0x01, 0x01, level);
     }
 
+    bool ZehnderComfoAirQ::request_pressure_property(int subunit, int property)
+    {
+        // Fixed GET operation and pressure unit: no generic write/factory/firmware surface.
+        if (parent_ == nullptr || pressure_read_.active() || subunit < 1 || subunit > 2 || property < 1 || property > 16)
+            return false;
+        const uint8_t sequence = get_command_next_sequence_number_();
+        pressure_read_subunit_ = uint8_t(subunit);
+        pressure_read_property_ = uint8_t(property);
+        pressure_read_.start(sequence, local_node_id_, 0x01);
+        set_timeout("pressure_read", 2500, [this]() {
+            if (pressure_read_.active()) {
+                ESP_LOGW(TAG, "Pressure read timeout: subunit %u property %u", pressure_read_subunit_, pressure_read_property_);
+                pressure_read_.cancel();
+            }
+        });
+        send_can_message_(get_command_can_id_(false, sequence), false,
+                          {0x01, 0x23, uint8_t(subunit), 0x10, uint8_t(property)});
+        return true;
+    }
+
+    void ZehnderComfoAirQ::receive_pressure_read_(uint32_t id, bool extended, bool rtr, const std::vector<uint8_t> &data)
+    {
+        const auto status = pressure_read_.receive(id, extended, rtr, data);
+        if (status == RmiReadStatus::IGNORED || status == RmiReadStatus::INCOMPLETE)
+            return;
+        cancel_timeout("pressure_read");
+        if (status == RmiReadStatus::INVALID) {
+            ESP_LOGW(TAG, "Pressure read malformed response: subunit %u property %u", pressure_read_subunit_, pressure_read_property_);
+            return;
+        }
+        ESP_LOGD("pressure_rmi", "subunit: %u, property: %u, error: %d, length: %u, data: %s",
+                 pressure_read_subunit_, pressure_read_property_, pressure_read_.error(),
+                 unsigned(pressure_read_.data().size()), format_hex_pretty(pressure_read_.data()).c_str());
+    }
+
     void ZehnderComfoAirQ::set_level_float(float state)
     {
         uint8_t level;
@@ -90,6 +129,12 @@ namespace zehnder_comfoair_q
         {
             ESP_LOGW(TAG, "Read-only mode: suppressing ventilation command");
             return;
+        }
+        // Control has priority; avoid confusing a wrapped command sequence with a pending read.
+        if (pressure_read_.active()) {
+            cancel_timeout("pressure_read");
+            pressure_read_.cancel();
+            ESP_LOGD(TAG, "Pressure read canceled by ventilation control");
         }
         auto is_multi_message_command = command.size() > 8;
         auto can_id = get_command_can_id_(is_multi_message_command, get_command_next_sequence_number_());

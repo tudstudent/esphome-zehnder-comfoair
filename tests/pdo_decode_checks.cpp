@@ -1,5 +1,6 @@
 #include "pdo_types.h"
 #include "airflow_constraints.h"
+#include "rmi_read_response.h"
 #include <cstdlib>
 #include <iostream>
 #include <limits>
@@ -60,6 +61,39 @@ int main() {
     check(!decode_pdo(305, {0x67, 0}, value), "unknown PDO never falls back to length inference");
     check(decode_pdo_value(PdoType::UINT16, {0x67, 0}, value) && value.raw == 103,
           "raw diagnostics require an explicit representation");
-    std::cout << "PDO decoder checks: " << failures << " failures\n";
+    RmiReadResponse reply;
+    const uint32_t reply_id = 0x1f000000u | (2u << 17) | (42u << 6) | 1u;
+    reply.start(2, 42, 1);
+    check(reply.receive(reply_id, false, false, {1}) == RmiReadStatus::IGNORED, "ignore standard frame");
+    check(reply.receive(reply_id, true, true, {}) == RmiReadStatus::IGNORED, "ignore RTR");
+    check(reply.receive(reply_id ^ 1, true, false, {1}) == RmiReadStatus::IGNORED, "ignore other source");
+    check(reply.receive(reply_id ^ (1u << 6), true, false, {1}) == RmiReadStatus::IGNORED, "ignore other recipient");
+    check(reply.receive(reply_id ^ (1u << 17), true, false, {1}) == RmiReadStatus::IGNORED, "ignore wrong sequence");
+    check(reply.receive(reply_id | (1u << 16), true, false, {1}) == RmiReadStatus::IGNORED, "ignore request echo");
+    check(reply.receive(reply_id | (1u << 23), true, false, {1}) == RmiReadStatus::IGNORED, "ignore firmware channel");
+    check(reply.receive(reply_id, true, false, {0x67, 0}) == RmiReadStatus::COMPLETE &&
+          !reply.error() && reply.data() == std::vector<uint8_t>({0x67, 0}), "matching unfragmented read response");
+    reply.start(2, 42, 1);
+    check(reply.receive(reply_id | (1u << 15), true, false, {14}) == RmiReadStatus::COMPLETE && reply.error(), "preserve explicit RMI error");
+    reply.start(2, 42, 1);
+    check(reply.receive(reply_id | (1u << 14), true, false, {0, 1, 2, 3}) == RmiReadStatus::INCOMPLETE, "first fragment");
+    check(reply.receive(reply_id | (1u << 14), true, false, {0x81, 4, 5}) == RmiReadStatus::COMPLETE &&
+          reply.data() == std::vector<uint8_t>({1, 2, 3, 4, 5}), "ordered fragments retain every data byte");
+    reply.start(2, 42, 1);
+    check(reply.receive(reply_id | (1u << 14), true, false, {1, 5}) == RmiReadStatus::INVALID && !reply.active(), "reject wrong initial fragment");
+    reply.start(2, 42, 1);
+    check(reply.receive(reply_id | (1u << 14), true, false, {}) == RmiReadStatus::INVALID, "reject empty fragment");
+    reply.start(2, 42, 1);
+    check(reply.receive(reply_id, true, false, std::vector<uint8_t>(9)) == RmiReadStatus::INVALID, "reject oversized CAN frame");
+    reply.start(2, 42, 1);
+    for (uint8_t index = 0; index < 36; index++) {
+        auto fragment = std::vector<uint8_t>(8, 0); fragment[0] = index;
+        check(reply.receive(reply_id | (1u << 14), true, false, fragment) == RmiReadStatus::INCOMPLETE, "bounded multi-frame prefix");
+    }
+    check(reply.receive(reply_id | (1u << 14), true, false, {36, 0, 0, 0, 0, 0, 0, 0}) == RmiReadStatus::INVALID,
+          "response cannot exceed 256 bytes");
+    reply.start(2, 42, 1); reply.cancel();
+    check(reply.receive(reply_id, true, false, {1}) == RmiReadStatus::IGNORED, "canceled reads never process stale replies");
+    std::cout << "PDO/RMI decoder checks: " << failures << " failures\n";
     return failures ? EXIT_FAILURE : EXIT_SUCCESS;
 }

@@ -18,6 +18,25 @@ check(bus.requests.size() == request_count + 1, "read-only mode still permits PD
 bus.requests.clear();
 id(comfoair).set_read_only(false);
 
+id(comfoair).set_read_only(true);
+check(!id(comfoair).request_pressure_property(0, 3) && !id(comfoair).request_pressure_property(3, 3) &&
+      !id(comfoair).request_pressure_property(1, 0) && !id(comfoair).request_pressure_property(1, 17),
+      "pressure getter rejects subunit/property values outside fixed read scope");
+check(id(comfoair).request_pressure_property(1, 3) && id(comfoair).pressure_read_pending(),
+      "read-only mode permits a fixed pressure GET");
+check(bus.sent.size() == 1 && bus.sent[0].can_data_length_code == 5 &&
+      std::vector<uint8_t>(bus.sent[0].data, bus.sent[0].data + 5) == std::vector<uint8_t>({1, 0x23, 1, 0x10, 3}),
+      "pressure read sends GET only, never firmware/factory/set commands");
+check(!id(comfoair).request_pressure_property(2, 3), "pressure reads cannot overlap");
+const auto sequence = (bus.sent.back().can_id >> 17) & 3;
+bus.receive_rmi(0x1f000000u | (sequence << 17) | (42u << 6) | 1u, {0x67, 0});
+check(!id(comfoair).pressure_read_pending(), "matching response ends the request");
+id(comfoair).set_read_only(false);
+check(id(comfoair).request_pressure_property(2, 3), "next pressure read can start");
+id(comfoair).set_level(1);
+check(!id(comfoair).pressure_read_pending(), "a real control request cancels pending diagnostics");
+bus.sent.clear();
+
 for (const auto &entry : std::vector<std::pair<uint8_t, std::string>>{{7, "Away"}, {8, "DFC"}, {1, "Normal"}}) {
   bus.receive(16, entry.first);
   check(id(device_state).state == entry.second, "complete device state distinguishes Away and DFC");
