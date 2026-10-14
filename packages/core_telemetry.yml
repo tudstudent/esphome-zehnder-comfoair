@@ -1,0 +1,160 @@
+# Optional device/status fields. No commands or feedback automations.
+substitutions:
+  comfoair_canbus_id: comfoair_canbus
+
+zehnder_comfoair_q:
+  request_ids: [16, 18, 56, 70, 71, 176, 208, 224, 228, 338, 342, 343]
+
+text_sensor:
+  - platform: template
+    id: device_state
+    name: "Device State"
+    entity_category: diagnostic
+    update_interval: never
+    filters:
+      - map:
+          - 0 -> Initializing
+          - 1 -> Normal
+          - 2 -> Filter Wizard
+          - 3 -> Commissioning
+          - 4 -> Supplier Factory
+          - 5 -> Zehnder Factory
+          - 6 -> Standby
+          - 7 -> Away
+          - 8 -> DFC
+
+  - platform: template
+    id: filter_changing_status
+    name: "Filter Changing Status"
+    entity_category: diagnostic
+    update_interval: never
+    filters:
+      - map:
+          - 1 -> Active
+          - 2 -> Changing Filter
+
+  - platform: template
+    id: manual_mode_status
+    name: "Manual Mode Status"
+    entity_category: diagnostic
+    update_interval: never
+    filters:
+      - map:
+          - 255 -> Auto
+          - 1 -> Manual (permanent)
+
+  - platform: template
+    id: supply_fan_mode_setting
+    name: "Supply Fan Mode Setting"
+    entity_category: diagnostic
+    update_interval: never
+    filters:
+      - map:
+          - 0 -> Balanced
+          - 1 -> Supply Only
+
+  - platform: template
+    id: exhaust_fan_mode_setting
+    name: "Exhaust Fan Mode Setting"
+    entity_category: diagnostic
+    update_interval: never
+    filters:
+      - map:
+          - 0 -> Balanced
+          - 1 -> Exhaust Only
+
+  - platform: template
+    id: rf_pairing_status
+    name: "RF Pairing Status"
+    entity_category: diagnostic
+    update_interval: never
+    filters:
+      - map:
+          - 0 -> Not Running
+          - 1 -> Running
+          - 2 -> Done
+          - 3 -> Failed
+          - 4 -> Aborted
+
+  - platform: template
+    id: device_temperature_unit
+    name: "Device Temperature Unit"
+    entity_category: diagnostic
+    update_interval: never
+    filters:
+      - map:
+          - 0 -> Celsius
+          - 1 -> Fahrenheit
+
+  - platform: template
+    id: device_airflow_unit
+    name: "Device Airflow Unit"
+    entity_category: diagnostic
+    update_interval: never
+    filters:
+      - map:
+          - 1 -> kg/h
+          - 2 -> l/s
+          - 3 -> m3/h
+
+  - platform: template
+    id: bypass_override_status
+    name: "Bypass Override Status"
+    entity_category: diagnostic
+    update_interval: never
+    filters:
+      - map:
+          - 0 -> Auto
+          - 2 -> Overridden
+
+  - platform: template
+    id: supply_fan_override_status
+    name: "Supply Fan Override Status"
+    entity_category: diagnostic
+    update_interval: never
+    filters:
+      - map:
+          - 0 -> Balanced
+          - 2 -> Supply Only
+
+  - platform: template
+    id: exhaust_fan_override_status
+    name: "Exhaust Fan Override Status"
+    entity_category: diagnostic
+    update_interval: never
+    filters:
+      - map:
+          - 0 -> Balanced
+          - 2 -> Exhaust Only
+
+sensor:
+  - platform: template
+    id: frost_protection_unbalance_raw
+    name: "Frost Protection Unbalance (Raw)"
+    entity_category: diagnostic
+    update_interval: never
+    accuracy_decimals: 0
+
+canbus:
+  - id: !extend ${comfoair_canbus_id}
+    on_frame:
+      - can_id: 0x40
+        can_id_mask: 0x1f003fc0
+        use_extended_id: true
+        remote_transmission_request: false
+        then:
+          - lambda: |-
+              switch (id(comfoair)->get_pdo_id_from_can_id (can_id)) {
+                  comfoair_on_frame_case(16, id(comfoair), device_state, true);
+                  comfoair_on_frame_case(18, id(comfoair), filter_changing_status, true);
+                  comfoair_on_frame_case(56, id(comfoair), manual_mode_status, true);
+                  comfoair_on_frame_case(70, id(comfoair), supply_fan_mode_setting, true);
+                  comfoair_on_frame_case(71, id(comfoair), exhaust_fan_mode_setting, true);
+                  comfoair_on_frame_case(176, id(comfoair), rf_pairing_status, true);
+                  comfoair_on_frame_case(208, id(comfoair), device_temperature_unit, true);
+                  comfoair_on_frame_case(224, id(comfoair), device_airflow_unit, true);
+                  comfoair_on_frame_case(228, id(comfoair), frost_protection_unbalance_raw, true);
+                  comfoair_on_frame_case(338, id(comfoair), bypass_override_status, true);
+                  comfoair_on_frame_case(342, id(comfoair), supply_fan_override_status, true);
+                  comfoair_on_frame_case(343, id(comfoair), exhaust_fan_override_status, true);
+              }

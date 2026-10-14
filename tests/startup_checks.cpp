@@ -3,6 +3,8 @@ using esphome::test_canbus::check;
 auto &bus = *id(test_bus);
 check(bus.sent.empty(), "setup must not write ventilation settings");
 bus.sent.clear();
+// Keep the deferred boot query out of the independently scheduled RTR checks.
+id(comfoair).set_request_ids({});
 
 id(comfoair).set_read_only(true);
 id(comfoair).set_level(3);
@@ -15,6 +17,42 @@ id(comfoair).request_pdo(212);
 check(bus.requests.size() == request_count + 1, "read-only mode still permits PDO read requests");
 bus.requests.clear();
 id(comfoair).set_read_only(false);
+
+for (const auto &entry : std::vector<std::pair<uint8_t, std::string>>{{7, "Away"}, {8, "DFC"}, {1, "Normal"}}) {
+  bus.receive(16, entry.first);
+  check(id(device_state).state == entry.second, "complete device state distinguishes Away and DFC");
+}
+bus.receive(18, 2);
+check(id(filter_changing_status).state == "Changing Filter", "filter-changing status enum");
+bus.receive(18, std::vector<uint8_t>{1, 0});
+check(id(filter_changing_status).state == "Changing Filter", "wrong-width filter status preserves state");
+bus.receive(56, 255);
+check(id(manual_mode_status).state == "Auto", "manual-mode unsigned sentinel");
+bus.receive(70, 1);
+bus.receive(71, 1);
+check(id(supply_fan_mode_setting).state == "Supply Only" && id(exhaust_fan_mode_setting).state == "Exhaust Only",
+      "setting fan modes use distinct 0/1 enums");
+bus.receive(176, 4);
+check(id(rf_pairing_status).state == "Aborted", "RF pairing enum");
+bus.receive(208, 1);
+bus.receive(224, 1);
+check(id(device_temperature_unit).state == "Fahrenheit" && id(device_airflow_unit).state == "kg/h",
+      "unit enums include Fahrenheit and kg/h");
+bus.receive(228, 128);
+check(id(frost_protection_unbalance_raw).state == 128, "uncertain frost field stays unsigned and unscaled");
+for (const auto &entry : std::vector<std::pair<uint16_t, text_sensor::TextSensor *>>{
+         {338, id(bypass_override_status)}, {342, id(supply_fan_override_status)}, {343, id(exhaust_fan_override_status)}}) {
+  bus.receive(entry.first, std::vector<uint8_t>{2, 0, 0, 0});
+  const auto previous = entry.second->state;
+  check(previous != "2", "known UINT32 override enum is labelled");
+  bus.receive(entry.first, std::vector<uint8_t>{0});
+  check(entry.second->state == previous, "override fields reject short payloads");
+}
+bus.receive(86, std::vector<uint8_t>{0xff, 0xff, 0xff, 0xff});
+bus.receive(87, std::vector<uint8_t>{60, 0, 0, 0});
+check(id(next_supply_change_in).state == "n/a" && id(next_exhaust_change_in).state == "1m0s",
+      "supply/exhaust timers format exact UINT32 values");
+check(bus.sent.empty(), "optional telemetry never sends commands");
 
 // Literal payloads reconstruct through the actual component's public CAN boundary.
 uint32_t previous_sequence = 0;

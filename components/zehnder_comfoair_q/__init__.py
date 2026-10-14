@@ -23,8 +23,9 @@ CONFIG_SCHEMA = (
             cv.GenerateID(): cv.declare_id(ZehnderComfoAirQ),
             cv.GenerateID(CONF_CANBUS_ID): cv.use_id(CanbusComponent),
             cv.Optional(CONF_REQUEST_INTERVAL, default="1h"): cv.update_interval,
-            cv.Optional(CONF_REQUEST_IDS, default={}): cv.ensure_list(
-                cv.int_range(min=0, max=0x3ff),
+            cv.Optional(CONF_REQUEST_IDS, default=[]): cv.All(
+                cv.ensure_list(cv.int_range(min=0, max=0x3ff)),
+                lambda ids: list(dict.fromkeys(ids)),
             ),
             cv.Optional(CONF_REQUEST_DELAY, default="100ms"): cv.positive_time_period_milliseconds,
             cv.Optional(CONF_REQUEST_LOCAL_NODE_ID, default=0x2a): cv.int_range(min=0x01, max=0x3f),

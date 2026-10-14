@@ -1,0 +1,52 @@
+# Optional supply/exhaust countdowns; format integers before float publication.
+substitutions:
+  comfoair_canbus_id: comfoair_canbus
+
+zehnder_comfoair_q:
+  request_ids: [86, 87]
+
+sensor:
+  - platform: template
+    id: next_supply_change_in_raw
+    internal: true
+    update_interval: never
+    accuracy_decimals: 0
+    device_class: duration
+    unit_of_measurement: "s"
+  - platform: template
+    id: next_exhaust_change_in_raw
+    internal: true
+    update_interval: never
+    accuracy_decimals: 0
+    device_class: duration
+    unit_of_measurement: "s"
+
+text_sensor:
+  - platform: template
+    id: next_supply_change_in
+    name: "Next Supply Fan Change In"
+    entity_category: diagnostic
+    update_interval: never
+  - platform: template
+    id: next_exhaust_change_in
+    name: "Next Exhaust Fan Change In"
+    entity_category: diagnostic
+    update_interval: never
+
+canbus:
+  - id: !extend ${comfoair_canbus_id}
+    on_frame:
+      - can_id: 0x158040 # PDO 86
+        can_id_mask: 0x1fffffc0
+        use_extended_id: true
+        remote_transmission_request: false
+        then:
+          - lambda: |-
+              id(comfoair)->publish_duration_state(id(next_supply_change_in_raw), id(next_supply_change_in), x);
+      - can_id: 0x15c040 # PDO 87
+        can_id_mask: 0x1fffffc0
+        use_extended_id: true
+        remote_transmission_request: false
+        then:
+          - lambda: |-
+              id(comfoair)->publish_duration_state(id(next_exhaust_change_in_raw), id(next_exhaust_change_in), x);

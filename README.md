@@ -12,6 +12,8 @@ It exposes all known information and airflow control through the [ESPHome native
 
 See [PDO type mapping](docs/PDO-MAPPING.md) for the pinned protocol inventory,
 typed decoding, reference disagreements, and mapping regression checks.
+Additional status fields and fan timers are available through the
+[optional core telemetry packages](docs/CORE-TELEMETRY.md).
 
 See specific guides for each device:
 - [Olimex ESP32-EVB](docs/esp32-evb.md)

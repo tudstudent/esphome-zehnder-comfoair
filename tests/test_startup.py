@@ -21,6 +21,8 @@ def run(climate):
     packages.append("airflow_constraints")
     packages.append("filter_lifetime")
     packages.append("temperature_profile_mode")
+    packages.append("core_telemetry")
+    packages.append("fan_timers")
     bus = yaml.safe_load((ROOT / "packages/canbus.yml").read_text())["canbus"][0]
     bus.update(platform="test_canbus", id="test_bus")
     del bus["tx_pin"], bus["rx_pin"]
@@ -135,7 +137,7 @@ def run(climate):
             {"source": {"type": "local", "path": str(ROOT / "tests/components")}},
         ],
         "canbus": [bus],
-        "zehnder_comfoair_q": {"id": "comfoair", "canbus_id": "test_bus", "request_ids": [65, 67], "request_interval": "never"},
+        "zehnder_comfoair_q": {"id": "comfoair", "canbus_id": "test_bus", "request_ids": [65, 67, 16, 65], "request_interval": "never"},
     }
     if os.environ.get("ESPHOME_TEST_SANITIZE") == "1":
         config["esphome"]["platformio_options"] = {
@@ -159,7 +161,8 @@ def run(climate):
     path.write_text(yaml.safe_dump(config, sort_keys=False) + includes)
     merged = read_config({})
     assert merged is not None
-    assert sorted(int(pdo) for pdo in merged["zehnder_comfoair_q"]["request_ids"]) == [65, 67, 226, 230]
+    assert sorted(int(pdo) for pdo in merged["zehnder_comfoair_q"]["request_ids"]) == [
+        16, 18, 56, 65, 67, 70, 71, 86, 87, 176, 208, 224, 226, 228, 230, 338, 342, 343]
     assert len(merged["canbus"]) == 1
     subprocess.run([sys.executable, "-m", "esphome", "compile", str(path)], check=True)
     # Fresh preferences per run; do not inherit the workstation's host state.
