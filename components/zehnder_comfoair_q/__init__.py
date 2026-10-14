@@ -14,6 +14,7 @@ CONF_REQUEST_INTERVAL = "request_interval"
 CONF_REQUEST_IDS = "request_ids"
 CONF_REQUEST_DELAY = "request_delay"
 CONF_REQUEST_LOCAL_NODE_ID = "local_node_id"
+CONF_READ_ONLY = "read_only"
 
 
 CONFIG_SCHEMA = (
@@ -27,6 +28,7 @@ CONFIG_SCHEMA = (
             ),
             cv.Optional(CONF_REQUEST_DELAY, default="100ms"): cv.positive_time_period_milliseconds,
             cv.Optional(CONF_REQUEST_LOCAL_NODE_ID, default=0x2a): cv.int_range(min=0x01, max=0x3f),
+            cv.Optional(CONF_READ_ONLY, default=False): cv.boolean,
         }
     )
 )
@@ -45,3 +47,4 @@ async def to_code(config):
     cg.add(var.set_request_ids(config[CONF_REQUEST_IDS]))
     cg.add(var.set_request_delay(config[CONF_REQUEST_DELAY]))
     cg.add(var.set_local_node_id(config[CONF_REQUEST_LOCAL_NODE_ID]))
+    cg.add(var.set_read_only(config[CONF_READ_ONLY]))

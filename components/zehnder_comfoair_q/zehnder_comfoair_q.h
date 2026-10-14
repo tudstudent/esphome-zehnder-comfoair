@@ -57,6 +57,7 @@ namespace zehnder_comfoair_q
         void set_request_ids(const std::vector<uint16_t> &request_ids) { request_ids_ = request_ids; }
         void set_request_delay(uint32_t request_delay) { request_delay_ = request_delay; }
         void set_local_node_id(uint8_t local_node_id) { local_node_id_ = local_node_id; }
+        void set_read_only(bool read_only) { read_only_ = read_only; }
 
         void request_all_pdos();
         void request_pdo(uint16_t pdo_id);
@@ -107,7 +108,7 @@ namespace zehnder_comfoair_q
         }
         bool set_filter_lifetime(float days)
         {
-            if (!std::isfinite(days) || days < 0 || days > 65535 || std::floor(days) != days)
+            if (read_only_ || !std::isfinite(days) || days < 0 || days > 65535 || std::floor(days) != days)
                 return false;
             send_command_set_property_uint16(0x1c, 0x01, 0x03, uint16_t(days));
             return true; // Valid request sent, not a device acknowledgement.
@@ -229,6 +230,7 @@ namespace zehnder_comfoair_q
         void request_next_pdo_();
 
         uint8_t local_node_id_ = 0x2a;
+        bool read_only_ = false;
 
         // Builds the CAN id of a command frame sent from this node to the ComfoAir Q unit (node 0x01).
         uint32_t get_command_can_id_(bool is_multi_message_command, uint8_t sequence_number);

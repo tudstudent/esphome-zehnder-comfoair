@@ -18,6 +18,8 @@ jobs:
           python3 -m unittest discover -s tests -p 'test_pdo_mapping.py'
           python3 tests/test_pdo_decode.py
           python3 tests/test_pdo_decode.py --sanitize
+      - name: Test read-only capture tooling
+        run: uv run --with-requirements requirements.txt python -m unittest discover -s tests -p 'test_capture_pdos.py'
       - name: Run host tests with ASan and UBSan
         run: ESPHOME_TEST_SANITIZE=1 make test
       - name: Check iterator bounds

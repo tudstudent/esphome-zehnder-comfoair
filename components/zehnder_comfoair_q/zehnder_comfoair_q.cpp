@@ -86,6 +86,11 @@ namespace zehnder_comfoair_q
 
     void ZehnderComfoAirQ::send_command(const std::vector<uint8_t> &command)
     {
+        if (read_only_)
+        {
+            ESP_LOGW(TAG, "Read-only mode: suppressing ventilation command");
+            return;
+        }
         auto is_multi_message_command = command.size() > 8;
         auto can_id = get_command_can_id_(is_multi_message_command, get_command_next_sequence_number_());
 

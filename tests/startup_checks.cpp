@@ -4,6 +4,18 @@ auto &bus = *id(test_bus);
 check(bus.sent.empty(), "setup must not write ventilation settings");
 bus.sent.clear();
 
+id(comfoair).set_read_only(true);
+id(comfoair).set_level(3);
+id(comfoair).set_temp_profile(zehnder_comfoair_q::TEMP_PROFILE_WARM);
+check(bus.sent.empty(), "read-only mode suppresses every command path");
+check(!id(comfoair).set_filter_lifetime(300) && bus.sent.empty(),
+      "read-only mode cannot report a suppressed property write as sent");
+const auto request_count = bus.requests.size();
+id(comfoair).request_pdo(212);
+check(bus.requests.size() == request_count + 1, "read-only mode still permits PDO read requests");
+bus.requests.clear();
+id(comfoair).set_read_only(false);
+
 // Literal payloads reconstruct through the actual component's public CAN boundary.
 uint32_t previous_sequence = 0;
 for (size_t length : {8u, 9u, 14u, 15u, 4u}) {
