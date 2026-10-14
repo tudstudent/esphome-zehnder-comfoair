@@ -15,5 +15,8 @@
 - Only the owner-confirmed KD ESP32 may be accessed. KD development uploads and
   bounded fan-speed tests are authorized; other devices and unrelated setting
   changes are not. Preserve networking/credentials and restore test settings.
+- ESP32 upload permission does not authorize Zehnder firmware/bootloader actions.
+  Do not send Zehnder flash, erase, factory-mode, reset, or unverified firmware-read
+  operations without separate explicit approval and an established recovery plan.
 - Keep secrets, private endpoints, and raw captures out of Git. Do not push or
   open upstream PRs without the owner's approval.

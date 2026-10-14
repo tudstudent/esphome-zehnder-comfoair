@@ -246,6 +246,16 @@ is not yet confirmed. Keep discovery tools and verified sensor additions separat
 - [ ] Validate the ESP32-C3/Ethernet KD configuration locally and on hardware
   only after the required authorization. Keep pressure work independent.
 
+## Additional Research - Zehnder Firmware Readback
+
+- [x] Confirm published ComfoConnect FUP read/register and chunk-streaming message
+  definitions; record evidence and risks in `docs/FIRMWARE-READBACK-RESEARCH.md`.
+- [ ] Look for an official update file and inspect app/update tooling offline.
+- [ ] Establish block layout, direct-CAN framing, safe read prerequisites, and
+  recovery before proposing any live Zehnder firmware readback.
+- [ ] Obtain separate explicit permission for Zehnder bootloader/firmware actions;
+  existing KD ESP32 upload permission does not cover them. No such action was sent.
+
 ## PR Submission Gates
 
 - [ ] State scope, dependencies, reference revisions, API changes, and evidence.
