@@ -32,7 +32,7 @@ def import_reference(revision):
         entries[pdo] = {
             "id": pdo, "description": cells[2], "documented_type": cells[1] or None,
             "examples": cells[3], "registry_type": None, "unit": None,
-            "registry_value_fn": None, "accepted_types": [cells[1]] if cells[1] else [],
+            "registry_value_fn": None, "type": cells[1] or None,
         }
     source = ast.parse(fetch(revision, "aiocomfoconnect/sensors.py"))
     units = {}
@@ -51,11 +51,8 @@ def import_reference(revision):
             entry["unit"] = units[unit.id] if isinstance(unit, ast.Name) else ast.literal_eval(unit)
             if len(sensor.args) > 4:
                 entry["registry_value_fn"] = ast.unparse(sensor.args[4])
-            entry["accepted_types"] = [entry["registry_type"]]
-    # Bridge type declarations and direct-CAN widths disagree here. Both explicit
-    # alternatives are retained until hardware evidence can settle the mapping.
-    entries[212]["accepted_types"] = ["CN_INT16", "CN_UINT8"]
-    entries[212]["note"] = "Documentation says UINT8; Python registry says INT16. Accept only those two widths."
+            entry["type"] = entry["registry_type"]
+    entries[212]["note"] = "Documentation says UINT8; registry declares INT16. KD returned two bytes E9 00 (233). Width is observed; signedness follows the registry. No alternate type is accepted."
     for pdo in (213, 216):
         entries[pdo]["note"] = "Documentation examples imply /100; Python treats raw values as watts. Scaling remains unverified."
     return {"upstream_repository": "michaelarnauts/aiocomfoconnect", "upstream_revision": revision,
@@ -72,7 +69,7 @@ def main():
         if mapping != json.loads(TARGET.read_text(encoding="utf-8")):
             parser.error("Upstream reference differs; review and synchronize pdo_mapping.json")
     else:
-        TARGET.write_text(json.dumps(mapping, indent=2, ensure_ascii=True) + "\n", encoding="utf-8")
+        TARGET.write_text(json.dumps(mapping, indent=2, ensure_ascii=True) + "\n", encoding="utf-8", newline="\n")
     print(f"Checked {len(mapping['pdos'])} PDO definitions at {args.revision}")
 
 

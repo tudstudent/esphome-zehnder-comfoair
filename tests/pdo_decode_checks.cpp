@@ -42,10 +42,10 @@ int main() {
         }
     }
     check(!decode_pdo_value(PdoType::NONE, {}, value), "unsupported type is rejected");
-    check(decode_pdo(129, {0x40, 0x9c}, value) && value.raw == 40000, "type table overrides legacy signed flag");
+    check(decode_pdo(129, {0x40, 0x9c}, value) && value.raw == 40000, "declared UINT16 preserves high values");
     check(!decode_pdo(129, {1}, value) && value.raw == 40000, "known PDO rejects wrong supported width");
     check(!decode_pdo(129, {1, 0, 0, 0}, value) && value.raw == 40000, "known PDO rejects four-byte UINT16");
-    check(decode_pdo(212, {233}, value) && value.raw == 233 && !value.is_signed, "documented target width");
+    check(!decode_pdo(212, {233}, value) && value.raw == 40000, "short target payload rejected without alternate decoding");
     check(decode_pdo(212, {0x2c, 1}, value) && value.signed_value() == 300, "registry target width");
     check(!decode_pdo(212, {1, 0, 0, 0}, value), "unverified target width rejected");
     check(decode_pdo(81, {0, 0, 0, 0x80}, value) && value.raw == 2147483648ULL && !value.is_signed, "unsigned timer high bit");
@@ -57,6 +57,9 @@ int main() {
     check(find_pdo_definition(16) && find_pdo_definition(1304), "first and last mapped IDs resolve");
     check(!find_pdo_definition(0) && !find_pdo_definition(69) && !find_pdo_definition(305) &&
           !find_pdo_definition(1305), "unknown/untyped entries are not invented");
+    check(!decode_pdo(305, {0x67, 0}, value), "unknown PDO never falls back to length inference");
+    check(decode_pdo_value(PdoType::UINT16, {0x67, 0}, value) && value.raw == 103,
+          "raw diagnostics require an explicit representation");
     std::cout << "PDO decoder checks: " << failures << " failures\n";
     return failures ? EXIT_FAILURE : EXIT_SUCCESS;
 }

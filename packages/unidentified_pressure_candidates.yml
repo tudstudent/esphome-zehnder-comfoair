@@ -28,13 +28,11 @@ canbus:
         remote_transmission_request: false
         then:
           - lambda: |-
-              if (x.size() == 2)
-                id(comfoair)->publish_state(id(unidentified_pdo_305_raw), x, true);
+              id(comfoair)->publish_raw_state(id(unidentified_pdo_305_raw), x, zehnder_comfoair_q::PdoType::UINT16);
       - can_id: 0x4c8040 # PDO 306
         can_id_mask: 0x1fffffc0
         use_extended_id: true
         remote_transmission_request: false
         then:
           - lambda: |-
-              if (x.size() == 2)
-                id(comfoair)->publish_state(id(unidentified_pdo_306_raw), x, true);
+              id(comfoair)->publish_raw_state(id(unidentified_pdo_306_raw), x, zehnder_comfoair_q::PdoType::UINT16);

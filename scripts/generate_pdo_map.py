@@ -28,21 +28,18 @@ def render(mapping):
         "struct PdoDefinition {",
         "    uint16_t id;",
         "    PdoType type;",
-        "    PdoType alternate_type;",
         "};",
         "",
         "inline const PdoDefinition *find_pdo_definition(uint16_t id) {",
         "    static constexpr PdoDefinition definitions[] = {",
     ]
     for entry in entries:
-        accepted = entry["accepted_types"]
-        if len(accepted) > 2 or any(t not in TYPES for t in accepted):
+        pdo_type = entry["type"]
+        if pdo_type is not None and pdo_type not in TYPES:
             raise ValueError(f"Unsupported types for PDO {entry['id']}")
-        if not accepted:
+        if pdo_type is None:
             continue
-        first = accepted[0].removeprefix("CN_")
-        second = accepted[1].removeprefix("CN_") if len(accepted) == 2 else "NONE"
-        lines.append(f"        {{{entry['id']}, PdoType::{first}, PdoType::{second}}},")
+        lines.append(f"        {{{entry['id']}, PdoType::{pdo_type.removeprefix('CN_')}}},")
     lines += [
         "    };",
         "    size_t first = 0, last = sizeof(definitions) / sizeof(definitions[0]);",
@@ -58,10 +55,7 @@ def render(mapping):
         "inline bool decode_pdo(uint16_t id, const std::vector<uint8_t> &data, PdoValue &value) {",
         "    const auto *definition = find_pdo_definition(id);",
         "    if (definition == nullptr) return false;",
-        "    if (data.size() == pdo_type_size(definition->type))",
-        "        return decode_pdo_value(definition->type, data, value);",
-        "    return definition->alternate_type != PdoType::NONE &&",
-        "        decode_pdo_value(definition->alternate_type, data, value);",
+        "    return decode_pdo_value(definition->type, data, value);",
         "}",
         "",
         "} // namespace zehnder_comfoair_q",
@@ -79,7 +73,7 @@ def main():
         if not TARGET.exists() or TARGET.read_text(encoding="utf-8") != output:
             parser.error("pdo_types.h is stale; run scripts/generate_pdo_map.py")
     else:
-        TARGET.write_text(output, encoding="utf-8")
+        TARGET.write_text(output, encoding="utf-8", newline="\n")
 
 
 if __name__ == "__main__":

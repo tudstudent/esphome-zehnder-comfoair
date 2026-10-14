@@ -77,6 +77,8 @@ for (const auto &entry : std::vector<std::pair<uint16_t, sensor::Sensor *>>{
   check(entry.second->state == 65535, "raw unsigned presentation does not assert physical signedness");
   bus.receive(entry.first, std::vector<uint8_t>{1});
   check(entry.second->state == 65535, "unidentified channels reject short frames");
+  id(comfoair).publish_pdo_state(entry.second, std::vector<uint8_t>{1, 0}, entry.first);
+  check(entry.second->state == 65535, "unknown PDO cannot use the known-type publishing path");
 }
 check(bus.sent.empty(), "unidentified raw telemetry cannot send commands");
 
@@ -130,8 +132,10 @@ for (const auto &payload : std::vector<std::vector<uint8_t>>{{}, {1}, {1, 2, 3},
   bus.receive(129, payload);
   check(id(energy_ytd).raw_state == 40000, "wrong PDO widths do not publish invented state");
 }
-bus.receive(212, std::vector<uint8_t>{233});
-check(std::abs(id(profile_target_temp).state - 23.3f) < 0.001f, "documented UINT8 target temperature remains supported");
+bus.receive(212, std::vector<uint8_t>{233, 0});
+check(std::abs(id(profile_target_temp).state - 23.3f) < 0.001f, "verified two-byte target temperature");
+bus.receive(212, std::vector<uint8_t>{1});
+check(std::abs(id(profile_target_temp).state - 23.3f) < 0.001f, "one-byte target payload cannot replace valid state");
 bus.receive(212, std::vector<uint8_t>{0x2c, 0x01});
 check(std::abs(id(profile_target_temp).state - 30.0f) < 0.001f, "registry INT16 target temperature remains supported");
 bus.receive(212, std::vector<uint8_t>{1, 2, 3, 4});

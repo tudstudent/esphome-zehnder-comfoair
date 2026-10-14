@@ -26,8 +26,10 @@ declares this project's `zehnder_comfoair_q` component, ESP-IDF, and native CAN.
 - Preserve known-good configuration/firmware and a recovery path before any
   authorized firmware replacement. Preserve normal ventilation during tests.
 - Keep secrets, private endpoints, and identifiable captures out of commits.
-- Keep existing YAML keys/entity identifiers compatible where practical;
-  document intentional changes and use aliases/deprecations for renames.
+- No shims, legacy fallbacks, compatibility branches, deprecated aliases, or
+  automatic type detection. Use current ESPHome interfaces and standard packages;
+  update call sites/documentation instead of preserving obsolete behavior.
+  Correct verified type errors directly. Width alone does not prove signedness.
 - Make uncertain mappings and accessory diagnostics opt-in. Do not enable an
   unbounded scan or request every unknown PDO on boot.
 - Include regression tests, documentation, and validation evidence in each PR.
@@ -54,8 +56,10 @@ original 2025 firmware binary are not confirmed. Preheater/analog channels were
 read as zero in the current condition; active/nonzero behavior remains untested.
 
 A targeted PDO 212 read returned two bytes `E9 00` (233, or 23.3 C) on KD. The
-decoder retains the explicit documented one-byte alternative for other variants;
-positive readings alone do not establish signedness independently of the reference.
+decoder accepts only the declared two-byte INT16 type; no one-byte variant has
+been demonstrated. Positive readings alone do not establish signedness
+independently of the reference. SHT20/SHT30 I2C formats are documented separately
+and do not establish the downstream PDO encoding.
 
 Pressure evidence and remaining uncertainty are in `docs/PRESSURE-DISCOVERY.md`.
 No calibrated Pa values or physical side assignments are asserted.
@@ -112,7 +116,7 @@ direct CAN. Verify ambiguous payload representation on the actual CAN bus.
   scaling, enum meaning, and unit; add type-specific width checks rather than
   accepting any supported length regardless of the PDO definition.
 - [x] Verify PDO 212's width on KD: two bytes, matching the Python registry width.
-  Retain an explicit UINT8 alternative for documentation/variant compatibility.
+  Reject truncated one-byte payloads; document the erroneous UINT8 declaration.
 - [ ] Resolve PDO 213/216 power scaling: documentation examples imply /100,
   whereas aiocomfoconnect treats raw values as watts and this project's YAML
   converts raw values to kW with /1000. Use evidence before changing scaling.
@@ -127,8 +131,8 @@ direct CAN. Verify ambiguous payload representation on the actual CAN bus.
 - [x] Document numeric float precision and keep no-change formatting/bitsets
   outside lossy numeric-state interpretation where needed.
 
-Acceptance: focused confirmed fixes with regression tests and compatible YAML;
-hardware-dependent findings remain explicitly pending until permitted testing.
+Acceptance: focused confirmed fixes with regression tests, updated YAML call
+sites, and documented API changes; hardware-dependent findings remain pending.
 
 ## Block 2 / PR 2 - Canonical Mapping and Converter Coverage
 
@@ -137,7 +141,7 @@ hardware-dependent findings remain explicitly pending until permitted testing.
 - [x] Add a reproducible comparison against pinned aiocomfoconnect definitions;
   record documentation/implementation disagreements instead of copying blindly.
 - [ ] Keep request lists, CAN dispatch, and entity metadata consistent; reduce
-  duplicated hand-maintained mappings while preserving existing user YAML.
+  duplicated hand-maintained mappings and update user YAML to current interfaces.
 - [x] Add reusable BOOL, UINT8/16/32, and INT8/16/64 decoders with exact widths.
   PDO 230 already has a dedicated 8-byte decoder; preserve or reuse it rather
   than replacing its integer bitset with a floating-point sensor value.
@@ -217,7 +221,7 @@ is not yet confirmed. Keep discovery tools and verified sensor additions separat
 - [ ] Use `../esphome-nibe` as a reference for standard abstraction adoption,
   not as a reason to introduce UDP into this CAN bridge.
 - [ ] Review scheduling, ownership, receive filtering, API actions, and YAML
-  lifecycle/feedback behavior in narrowly scoped compatibility PRs.
+  lifecycle/feedback behavior in narrowly scoped modernization PRs.
 - [ ] Preserve 50 kbit/s, extended frames, RTR requests, fragmented commands,
   request scheduling, and read-only feedback behavior.
 - [ ] Adapt baseline host tests/build tooling for Windows where needed; CI
@@ -227,7 +231,7 @@ is not yet confirmed. Keep discovery tools and verified sensor additions separat
 
 ## PR Submission Gates
 
-- [ ] State scope, dependencies, reference revisions, compatibility, and evidence.
+- [ ] State scope, dependencies, reference revisions, API changes, and evidence.
 - [ ] Run existing/added host tests and representative configuration/build checks.
 - [x] Obtain explicit KD upload permission for development/debugging.
 - [ ] Record tested versions/models and distinguish host tests from hardware tests.

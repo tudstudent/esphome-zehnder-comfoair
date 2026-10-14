@@ -10,9 +10,7 @@
       "registry_type": "CN_UINT8",
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT8"
-      ],
+      "type": "CN_UINT8",
       "registry_name": "Device State"
     },
     {
@@ -23,9 +21,7 @@
       "registry_type": null,
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT8"
-      ]
+      "type": "CN_UINT8"
     },
     {
       "id": 18,
@@ -35,9 +31,7 @@
       "registry_type": "CN_UINT8",
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT8"
-      ],
+      "type": "CN_UINT8",
       "registry_name": "Changing filters"
     },
     {
@@ -48,9 +42,7 @@
       "registry_type": "CN_UINT8",
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT8"
-      ],
+      "type": "CN_UINT8",
       "registry_name": "sensor_33"
     },
     {
@@ -61,9 +53,7 @@
       "registry_type": null,
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT8"
-      ]
+      "type": "CN_UINT8"
     },
     {
       "id": 36,
@@ -73,9 +63,7 @@
       "registry_type": null,
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT8"
-      ]
+      "type": "CN_UINT8"
     },
     {
       "id": 37,
@@ -85,9 +73,7 @@
       "registry_type": "CN_UINT8",
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT8"
-      ],
+      "type": "CN_UINT8",
       "registry_name": "sensor_37"
     },
     {
@@ -98,9 +84,7 @@
       "registry_type": null,
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT8"
-      ]
+      "type": "CN_UINT8"
     },
     {
       "id": 42,
@@ -110,9 +94,7 @@
       "registry_type": null,
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT8"
-      ]
+      "type": "CN_UINT8"
     },
     {
       "id": 49,
@@ -122,9 +104,7 @@
       "registry_type": "CN_UINT8",
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT8"
-      ],
+      "type": "CN_UINT8",
       "registry_name": "Operating Mode"
     },
     {
@@ -135,9 +115,7 @@
       "registry_type": null,
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT8"
-      ]
+      "type": "CN_UINT8"
     },
     {
       "id": 51,
@@ -147,9 +125,7 @@
       "registry_type": null,
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT8"
-      ]
+      "type": "CN_UINT8"
     },
     {
       "id": 52,
@@ -159,9 +135,7 @@
       "registry_type": null,
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT8"
-      ]
+      "type": "CN_UINT8"
     },
     {
       "id": 53,
@@ -171,9 +145,7 @@
       "registry_type": "CN_UINT8",
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT8"
-      ],
+      "type": "CN_UINT8",
       "registry_name": "sensor_53"
     },
     {
@@ -184,9 +156,7 @@
       "registry_type": "CN_UINT8",
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT8"
-      ],
+      "type": "CN_UINT8",
       "registry_name": "Supply Fan Mode"
     },
     {
@@ -197,9 +167,7 @@
       "registry_type": "CN_UINT8",
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT8"
-      ],
+      "type": "CN_UINT8",
       "registry_name": "Exhaust Fan Mode"
     },
     {
@@ -210,9 +178,7 @@
       "registry_type": "CN_UINT8",
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT8"
-      ],
+      "type": "CN_UINT8",
       "registry_name": "Operating Mode"
     },
     {
@@ -223,9 +189,7 @@
       "registry_type": null,
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT8"
-      ]
+      "type": "CN_UINT8"
     },
     {
       "id": 58,
@@ -235,9 +199,7 @@
       "registry_type": null,
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT8"
-      ]
+      "type": "CN_UINT8"
     },
     {
       "id": 65,
@@ -247,9 +209,7 @@
       "registry_type": "CN_UINT8",
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT8"
-      ],
+      "type": "CN_UINT8",
       "registry_name": "Fan Speed"
     },
     {
@@ -260,9 +220,7 @@
       "registry_type": "CN_UINT8",
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT8"
-      ],
+      "type": "CN_UINT8",
       "registry_name": "Bypass Activation State"
     },
     {
@@ -273,9 +231,7 @@
       "registry_type": "CN_UINT8",
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT8"
-      ],
+      "type": "CN_UINT8",
       "registry_name": "Temperature Profile Mode"
     },
     {
@@ -286,9 +242,7 @@
       "registry_type": null,
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT8"
-      ]
+      "type": "CN_UINT8"
     },
     {
       "id": 69,
@@ -298,7 +252,7 @@
       "registry_type": null,
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": []
+      "type": null
     },
     {
       "id": 70,
@@ -308,9 +262,7 @@
       "registry_type": "CN_UINT8",
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT8"
-      ],
+      "type": "CN_UINT8",
       "registry_name": "Supply Fan Mode"
     },
     {
@@ -321,9 +273,7 @@
       "registry_type": "CN_UINT8",
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT8"
-      ],
+      "type": "CN_UINT8",
       "registry_name": "Exhaust Fan Mode"
     },
     {
@@ -334,9 +284,7 @@
       "registry_type": null,
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT8"
-      ]
+      "type": "CN_UINT8"
     },
     {
       "id": 73,
@@ -346,9 +294,7 @@
       "registry_type": null,
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT8"
-      ]
+      "type": "CN_UINT8"
     },
     {
       "id": 74,
@@ -358,9 +304,7 @@
       "registry_type": null,
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT8"
-      ]
+      "type": "CN_UINT8"
     },
     {
       "id": 81,
@@ -370,9 +314,7 @@
       "registry_type": "CN_UINT32",
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT32"
-      ],
+      "type": "CN_UINT32",
       "registry_name": "Fan Speed Next Change"
     },
     {
@@ -383,9 +325,7 @@
       "registry_type": "CN_UINT32",
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT32"
-      ],
+      "type": "CN_UINT32",
       "registry_name": "Bypass Next Change"
     },
     {
@@ -396,9 +336,7 @@
       "registry_type": "CN_UINT32",
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT32"
-      ],
+      "type": "CN_UINT32",
       "registry_name": "sensor_85"
     },
     {
@@ -409,9 +347,7 @@
       "registry_type": "CN_UINT32",
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT32"
-      ],
+      "type": "CN_UINT32",
       "registry_name": "Supply Fan Next Change"
     },
     {
@@ -422,9 +358,7 @@
       "registry_type": "CN_UINT32",
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT32"
-      ],
+      "type": "CN_UINT32",
       "registry_name": "Exhaust Fan Next Change"
     },
     {
@@ -435,9 +369,7 @@
       "registry_type": null,
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT32"
-      ]
+      "type": "CN_UINT32"
     },
     {
       "id": 89,
@@ -447,9 +379,7 @@
       "registry_type": null,
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT32"
-      ]
+      "type": "CN_UINT32"
     },
     {
       "id": 90,
@@ -459,9 +389,7 @@
       "registry_type": null,
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT32"
-      ]
+      "type": "CN_UINT32"
     },
     {
       "id": 96,
@@ -471,9 +399,7 @@
       "registry_type": null,
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_BOOL"
-      ]
+      "type": "CN_BOOL"
     },
     {
       "id": 115,
@@ -483,9 +409,7 @@
       "registry_type": null,
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_BOOL"
-      ]
+      "type": "CN_BOOL"
     },
     {
       "id": 116,
@@ -495,9 +419,7 @@
       "registry_type": null,
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_BOOL"
-      ]
+      "type": "CN_BOOL"
     },
     {
       "id": 117,
@@ -507,9 +429,7 @@
       "registry_type": "CN_UINT8",
       "unit": "%",
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT8"
-      ],
+      "type": "CN_UINT8",
       "registry_name": "Exhaust Fan Duty"
     },
     {
@@ -520,9 +440,7 @@
       "registry_type": "CN_UINT8",
       "unit": "%",
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT8"
-      ],
+      "type": "CN_UINT8",
       "registry_name": "Supply Fan Duty"
     },
     {
@@ -533,9 +451,7 @@
       "registry_type": "CN_UINT16",
       "unit": "m\u00b3/h",
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT16"
-      ],
+      "type": "CN_UINT16",
       "registry_name": "Exhaust Fan Flow"
     },
     {
@@ -546,9 +462,7 @@
       "registry_type": "CN_UINT16",
       "unit": "m\u00b3/h",
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT16"
-      ],
+      "type": "CN_UINT16",
       "registry_name": "Supply Fan Flow"
     },
     {
@@ -559,9 +473,7 @@
       "registry_type": "CN_UINT16",
       "unit": "rpm",
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT16"
-      ],
+      "type": "CN_UINT16",
       "registry_name": "Exhaust Fan Speed"
     },
     {
@@ -572,9 +484,7 @@
       "registry_type": "CN_UINT16",
       "unit": "rpm",
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT16"
-      ],
+      "type": "CN_UINT16",
       "registry_name": "Supply Fan Speed"
     },
     {
@@ -585,9 +495,7 @@
       "registry_type": "CN_UINT16",
       "unit": "W",
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT16"
-      ],
+      "type": "CN_UINT16",
       "registry_name": "Power Usage"
     },
     {
@@ -598,9 +506,7 @@
       "registry_type": "CN_UINT16",
       "unit": "kWh",
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT16"
-      ],
+      "type": "CN_UINT16",
       "registry_name": "Power Usage (year)"
     },
     {
@@ -611,9 +517,7 @@
       "registry_type": "CN_UINT16",
       "unit": "kWh",
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT16"
-      ],
+      "type": "CN_UINT16",
       "registry_name": "Power Usage (total)"
     },
     {
@@ -624,9 +528,7 @@
       "registry_type": "CN_UINT16",
       "unit": "kWh",
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT16"
-      ],
+      "type": "CN_UINT16",
       "registry_name": "Preheater Power Usage (year)"
     },
     {
@@ -637,9 +539,7 @@
       "registry_type": "CN_UINT16",
       "unit": "kWh",
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT16"
-      ],
+      "type": "CN_UINT16",
       "registry_name": "Preheater Power Usage (total)"
     },
     {
@@ -650,9 +550,7 @@
       "registry_type": "CN_UINT16",
       "unit": "W",
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT16"
-      ],
+      "type": "CN_UINT16",
       "registry_name": "Preheater Power Usage"
     },
     {
@@ -663,9 +561,7 @@
       "registry_type": "CN_UINT8",
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT8"
-      ],
+      "type": "CN_UINT8",
       "registry_name": "RF Pairing Mode"
     },
     {
@@ -676,9 +572,7 @@
       "registry_type": "CN_UINT16",
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT16"
-      ],
+      "type": "CN_UINT16",
       "registry_name": "Days remaining to replace the filter"
     },
     {
@@ -689,9 +583,7 @@
       "registry_type": "CN_UINT8",
       "unit": null,
       "registry_value_fn": "lambda x: 'celcius' if x == 0 else 'farenheit'",
-      "accepted_types": [
-        "CN_UINT8"
-      ],
+      "type": "CN_UINT8",
       "registry_name": "Device Temperature Unit"
     },
     {
@@ -702,9 +594,7 @@
       "registry_type": "CN_INT16",
       "unit": "\u00b0C",
       "registry_value_fn": "lambda x: x / 10",
-      "accepted_types": [
-        "CN_INT16"
-      ],
+      "type": "CN_INT16",
       "registry_name": "Running Mean Outdoor Temperature (RMOT)"
     },
     {
@@ -715,9 +605,7 @@
       "registry_type": "CN_BOOL",
       "unit": null,
       "registry_value_fn": "bool",
-      "accepted_types": [
-        "CN_BOOL"
-      ],
+      "type": "CN_BOOL",
       "registry_name": "Heating Season is active"
     },
     {
@@ -728,9 +616,7 @@
       "registry_type": "CN_BOOL",
       "unit": null,
       "registry_value_fn": "bool",
-      "accepted_types": [
-        "CN_BOOL"
-      ],
+      "type": "CN_BOOL",
       "registry_name": "Cooling Season is active"
     },
     {
@@ -741,12 +627,9 @@
       "registry_type": "CN_INT16",
       "unit": "\u00b0C",
       "registry_value_fn": "lambda x: x / 10",
-      "accepted_types": [
-        "CN_INT16",
-        "CN_UINT8"
-      ],
+      "type": "CN_INT16",
       "registry_name": "Target Temperature",
-      "note": "Documentation says UINT8; Python registry says INT16. Accept only those two widths."
+      "note": "Documentation says UINT8; registry declares INT16. KD returned two bytes E9 00 (233). Width is observed; signedness follows the registry. No alternate type is accepted."
     },
     {
       "id": 213,
@@ -756,9 +639,7 @@
       "registry_type": "CN_UINT16",
       "unit": "W",
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT16"
-      ],
+      "type": "CN_UINT16",
       "registry_name": "Avoided Heating Power Usage",
       "note": "Documentation examples imply /100; Python treats raw values as watts. Scaling remains unverified."
     },
@@ -770,9 +651,7 @@
       "registry_type": "CN_UINT16",
       "unit": "kWh",
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT16"
-      ],
+      "type": "CN_UINT16",
       "registry_name": "Avoided Heating Power Usage (year)"
     },
     {
@@ -783,9 +662,7 @@
       "registry_type": "CN_UINT16",
       "unit": "kWh",
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT16"
-      ],
+      "type": "CN_UINT16",
       "registry_name": "Avoided Heating Power Usage (total)"
     },
     {
@@ -796,9 +673,7 @@
       "registry_type": "CN_UINT16",
       "unit": "W",
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT16"
-      ],
+      "type": "CN_UINT16",
       "registry_name": "Avoided Cooling Power Usage",
       "note": "Documentation examples imply /100; Python treats raw values as watts. Scaling remains unverified."
     },
@@ -810,9 +685,7 @@
       "registry_type": "CN_UINT16",
       "unit": "kWh",
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT16"
-      ],
+      "type": "CN_UINT16",
       "registry_name": "Avoided Cooling Power Usage (year)"
     },
     {
@@ -823,9 +696,7 @@
       "registry_type": "CN_UINT16",
       "unit": "kWh",
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT16"
-      ],
+      "type": "CN_UINT16",
       "registry_name": "Avoided Cooling Power Usage (total)"
     },
     {
@@ -836,9 +707,7 @@
       "registry_type": "CN_UINT16",
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT16"
-      ],
+      "type": "CN_UINT16",
       "registry_name": "sensor_219"
     },
     {
@@ -849,9 +718,7 @@
       "registry_type": "CN_INT16",
       "unit": null,
       "registry_value_fn": "lambda x: x / 10",
-      "accepted_types": [
-        "CN_INT16"
-      ],
+      "type": "CN_INT16",
       "registry_name": "Outdoor Air Temperature (?)"
     },
     {
@@ -862,9 +729,7 @@
       "registry_type": "CN_INT16",
       "unit": "\u00b0C",
       "registry_value_fn": "lambda x: x / 10",
-      "accepted_types": [
-        "CN_INT16"
-      ],
+      "type": "CN_INT16",
       "registry_name": "Supply Air Temperature"
     },
     {
@@ -875,9 +740,7 @@
       "registry_type": "CN_UINT8",
       "unit": null,
       "registry_value_fn": "lambda x: 'm3ph' if x == 3 else 'lps'",
-      "accepted_types": [
-        "CN_UINT8"
-      ],
+      "type": "CN_UINT8",
       "registry_name": "Device Airflow Unit"
     },
     {
@@ -888,9 +751,7 @@
       "registry_type": "CN_UINT8",
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT8"
-      ],
+      "type": "CN_UINT8",
       "registry_name": "Sensor based ventilation mode"
     },
     {
@@ -901,9 +762,7 @@
       "registry_type": "CN_UINT16",
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT16"
-      ],
+      "type": "CN_UINT16",
       "registry_name": "Fan Speed (modulated)"
     },
     {
@@ -914,9 +773,7 @@
       "registry_type": "CN_UINT8",
       "unit": "%",
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT8"
-      ],
+      "type": "CN_UINT8",
       "registry_name": "Bypass State"
     },
     {
@@ -927,9 +784,7 @@
       "registry_type": "CN_UINT8",
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT8"
-      ],
+      "type": "CN_UINT8",
       "registry_name": "frostprotection_unbalance"
     },
     {
@@ -940,9 +795,7 @@
       "registry_type": null,
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_BOOL"
-      ]
+      "type": "CN_BOOL"
     },
     {
       "id": 230,
@@ -952,9 +805,7 @@
       "registry_type": "CN_INT64",
       "unit": null,
       "registry_value_fn": "calculate_airflow_constraints",
-      "accepted_types": [
-        "CN_INT64"
-      ],
+      "type": "CN_INT64",
       "registry_name": "Airflow constraints"
     },
     {
@@ -965,9 +816,7 @@
       "registry_type": null,
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT8"
-      ]
+      "type": "CN_UINT8"
     },
     {
       "id": 257,
@@ -977,9 +826,7 @@
       "registry_type": null,
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT8"
-      ]
+      "type": "CN_UINT8"
     },
     {
       "id": 274,
@@ -989,9 +836,7 @@
       "registry_type": "CN_INT16",
       "unit": "\u00b0C",
       "registry_value_fn": "lambda x: x / 10",
-      "accepted_types": [
-        "CN_INT16"
-      ],
+      "type": "CN_INT16",
       "registry_name": "Extract Air Temperature"
     },
     {
@@ -1002,9 +847,7 @@
       "registry_type": "CN_INT16",
       "unit": "\u00b0C",
       "registry_value_fn": "lambda x: x / 10",
-      "accepted_types": [
-        "CN_INT16"
-      ],
+      "type": "CN_INT16",
       "registry_name": "Exhaust Air Temperature"
     },
     {
@@ -1015,9 +858,7 @@
       "registry_type": "CN_INT16",
       "unit": "\u00b0C",
       "registry_value_fn": "lambda x: x / 10",
-      "accepted_types": [
-        "CN_INT16"
-      ],
+      "type": "CN_INT16",
       "registry_name": "Outdoor Air Temperature"
     },
     {
@@ -1028,9 +869,7 @@
       "registry_type": "CN_INT16",
       "unit": "\u00b0C",
       "registry_value_fn": "lambda x: x / 10",
-      "accepted_types": [
-        "CN_INT16"
-      ],
+      "type": "CN_INT16",
       "registry_name": "Outdoor Air Temperature (?)"
     },
     {
@@ -1041,9 +880,7 @@
       "registry_type": "CN_INT16",
       "unit": "\u00b0C",
       "registry_value_fn": "lambda x: x / 10",
-      "accepted_types": [
-        "CN_INT16"
-      ],
+      "type": "CN_INT16",
       "registry_name": "Supply Air Temperature (?)"
     },
     {
@@ -1054,9 +891,7 @@
       "registry_type": "CN_UINT8",
       "unit": "%",
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT8"
-      ],
+      "type": "CN_UINT8",
       "registry_name": "Extract Air Humidity"
     },
     {
@@ -1067,9 +902,7 @@
       "registry_type": "CN_UINT8",
       "unit": "%",
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT8"
-      ],
+      "type": "CN_UINT8",
       "registry_name": "Exhaust Air Humidity"
     },
     {
@@ -1080,9 +913,7 @@
       "registry_type": "CN_UINT8",
       "unit": "%",
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT8"
-      ],
+      "type": "CN_UINT8",
       "registry_name": "Outdoor Air Humidity"
     },
     {
@@ -1093,9 +924,7 @@
       "registry_type": "CN_UINT8",
       "unit": "%",
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT8"
-      ],
+      "type": "CN_UINT8",
       "registry_name": "Outdoor Air Humidity (after preheater)"
     },
     {
@@ -1106,9 +935,7 @@
       "registry_type": "CN_UINT8",
       "unit": "%",
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT8"
-      ],
+      "type": "CN_UINT8",
       "registry_name": "Supply Air Humidity"
     },
     {
@@ -1119,9 +946,7 @@
       "registry_type": "CN_UINT16",
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT16"
-      ],
+      "type": "CN_UINT16",
       "registry_name": "sensor_321"
     },
     {
@@ -1132,9 +957,7 @@
       "registry_type": "CN_UINT16",
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT16"
-      ],
+      "type": "CN_UINT16",
       "registry_name": "sensor_325"
     },
     {
@@ -1145,9 +968,7 @@
       "registry_type": null,
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT16"
-      ]
+      "type": "CN_UINT16"
     },
     {
       "id": 330,
@@ -1157,9 +978,7 @@
       "registry_type": null,
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT16"
-      ]
+      "type": "CN_UINT16"
     },
     {
       "id": 337,
@@ -1169,9 +988,7 @@
       "registry_type": "CN_UINT32",
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT32"
-      ],
+      "type": "CN_UINT32",
       "registry_name": "sensor_337"
     },
     {
@@ -1182,9 +999,7 @@
       "registry_type": "CN_UINT32",
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT32"
-      ],
+      "type": "CN_UINT32",
       "registry_name": "Bypass Override"
     },
     {
@@ -1195,9 +1010,7 @@
       "registry_type": "CN_UINT32",
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT32"
-      ],
+      "type": "CN_UINT32",
       "registry_name": "sensor_341"
     },
     {
@@ -1208,9 +1021,7 @@
       "registry_type": "CN_UINT32",
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT32"
-      ],
+      "type": "CN_UINT32",
       "registry_name": "Supply Fan Mode"
     },
     {
@@ -1221,9 +1032,7 @@
       "registry_type": "CN_UINT32",
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT32"
-      ],
+      "type": "CN_UINT32",
       "registry_name": "Exhaust Fan Mode"
     },
     {
@@ -1234,9 +1043,7 @@
       "registry_type": null,
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT32"
-      ]
+      "type": "CN_UINT32"
     },
     {
       "id": 345,
@@ -1246,9 +1053,7 @@
       "registry_type": null,
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT32"
-      ]
+      "type": "CN_UINT32"
     },
     {
       "id": 346,
@@ -1258,9 +1063,7 @@
       "registry_type": null,
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT32"
-      ]
+      "type": "CN_UINT32"
     },
     {
       "id": 369,
@@ -1270,9 +1073,7 @@
       "registry_type": "CN_UINT8",
       "unit": "V",
       "registry_value_fn": "lambda x: x / 10",
-      "accepted_types": [
-        "CN_UINT8"
-      ],
+      "type": "CN_UINT8",
       "registry_name": "Analog Input 1"
     },
     {
@@ -1283,9 +1084,7 @@
       "registry_type": "CN_UINT8",
       "unit": "V",
       "registry_value_fn": "lambda x: x / 10",
-      "accepted_types": [
-        "CN_UINT8"
-      ],
+      "type": "CN_UINT8",
       "registry_name": "Analog Input 2"
     },
     {
@@ -1296,9 +1095,7 @@
       "registry_type": "CN_UINT8",
       "unit": "V",
       "registry_value_fn": "lambda x: x / 10",
-      "accepted_types": [
-        "CN_UINT8"
-      ],
+      "type": "CN_UINT8",
       "registry_name": "Analog Input 3"
     },
     {
@@ -1309,9 +1106,7 @@
       "registry_type": "CN_UINT8",
       "unit": "V",
       "registry_value_fn": "lambda x: x / 10",
-      "accepted_types": [
-        "CN_UINT8"
-      ],
+      "type": "CN_UINT8",
       "registry_name": "Analog Input 4"
     },
     {
@@ -1322,9 +1117,7 @@
       "registry_type": "CN_INT16",
       "unit": null,
       "registry_value_fn": "lambda x: x / 10",
-      "accepted_types": [
-        "CN_INT16"
-      ],
+      "type": "CN_INT16",
       "registry_name": "sensor_384"
     },
     {
@@ -1335,9 +1128,7 @@
       "registry_type": "CN_BOOL",
       "unit": null,
       "registry_value_fn": "bool",
-      "accepted_types": [
-        "CN_BOOL"
-      ],
+      "type": "CN_BOOL",
       "registry_name": "sensor_386"
     },
     {
@@ -1348,9 +1139,7 @@
       "registry_type": "CN_INT16",
       "unit": null,
       "registry_value_fn": "lambda x: x / 10",
-      "accepted_types": [
-        "CN_INT16"
-      ],
+      "type": "CN_INT16",
       "registry_name": "sensor_400"
     },
     {
@@ -1361,9 +1150,7 @@
       "registry_type": "CN_UINT8",
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT8"
-      ],
+      "type": "CN_UINT8",
       "registry_name": "sensor_401"
     },
     {
@@ -1374,9 +1161,7 @@
       "registry_type": "CN_BOOL",
       "unit": null,
       "registry_value_fn": "bool",
-      "accepted_types": [
-        "CN_BOOL"
-      ],
+      "type": "CN_BOOL",
       "registry_name": "sensor_402"
     },
     {
@@ -1387,9 +1172,7 @@
       "registry_type": "CN_INT16",
       "unit": null,
       "registry_value_fn": "lambda x: x / 10",
-      "accepted_types": [
-        "CN_INT16"
-      ],
+      "type": "CN_INT16",
       "registry_name": "ComfoFond Outdoor Air Temperature"
     },
     {
@@ -1400,9 +1183,7 @@
       "registry_type": "CN_INT16",
       "unit": null,
       "registry_value_fn": "lambda x: x / 10",
-      "accepted_types": [
-        "CN_INT16"
-      ],
+      "type": "CN_INT16",
       "registry_name": "ComfoFond Ground Temperature"
     },
     {
@@ -1413,9 +1194,7 @@
       "registry_type": "CN_UINT8",
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT8"
-      ],
+      "type": "CN_UINT8",
       "registry_name": "ComfoFond GHE State Percentage"
     },
     {
@@ -1426,9 +1205,7 @@
       "registry_type": "CN_BOOL",
       "unit": null,
       "registry_value_fn": "bool",
-      "accepted_types": [
-        "CN_BOOL"
-      ],
+      "type": "CN_BOOL",
       "registry_name": "ComfoFond GHE Present"
     },
     {
@@ -1439,9 +1216,7 @@
       "registry_type": null,
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT16"
-      ]
+      "type": "CN_UINT16"
     },
     {
       "id": 514,
@@ -1451,9 +1226,7 @@
       "registry_type": null,
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT16"
-      ]
+      "type": "CN_UINT16"
     },
     {
       "id": 515,
@@ -1463,9 +1236,7 @@
       "registry_type": null,
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT16"
-      ]
+      "type": "CN_UINT16"
     },
     {
       "id": 516,
@@ -1475,9 +1246,7 @@
       "registry_type": null,
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT16"
-      ]
+      "type": "CN_UINT16"
     },
     {
       "id": 517,
@@ -1487,9 +1256,7 @@
       "registry_type": null,
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT8"
-      ]
+      "type": "CN_UINT8"
     },
     {
       "id": 518,
@@ -1499,9 +1266,7 @@
       "registry_type": null,
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT8"
-      ]
+      "type": "CN_UINT8"
     },
     {
       "id": 519,
@@ -1511,9 +1276,7 @@
       "registry_type": null,
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT8"
-      ]
+      "type": "CN_UINT8"
     },
     {
       "id": 520,
@@ -1523,9 +1286,7 @@
       "registry_type": null,
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT8"
-      ]
+      "type": "CN_UINT8"
     },
     {
       "id": 521,
@@ -1535,9 +1296,7 @@
       "registry_type": null,
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_INT16"
-      ]
+      "type": "CN_INT16"
     },
     {
       "id": 522,
@@ -1547,9 +1306,7 @@
       "registry_type": null,
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_INT16"
-      ]
+      "type": "CN_INT16"
     },
     {
       "id": 523,
@@ -1559,9 +1316,7 @@
       "registry_type": null,
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_INT16"
-      ]
+      "type": "CN_INT16"
     },
     {
       "id": 524,
@@ -1571,9 +1326,7 @@
       "registry_type": null,
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT8"
-      ]
+      "type": "CN_UINT8"
     },
     {
       "id": 784,
@@ -1583,9 +1336,7 @@
       "registry_type": "CN_UINT8",
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT8"
-      ],
+      "type": "CN_UINT8",
       "registry_name": "ComfoCool State"
     },
     {
@@ -1596,9 +1347,7 @@
       "registry_type": "CN_BOOL",
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_BOOL"
-      ],
+      "type": "CN_BOOL",
       "registry_name": "sensor_785"
     },
     {
@@ -1609,9 +1358,7 @@
       "registry_type": null,
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_INT16"
-      ]
+      "type": "CN_INT16"
     },
     {
       "id": 802,
@@ -1621,9 +1368,7 @@
       "registry_type": "CN_INT16",
       "unit": null,
       "registry_value_fn": "lambda x: x / 10",
-      "accepted_types": [
-        "CN_INT16"
-      ],
+      "type": "CN_INT16",
       "registry_name": "ComfoCool Condensor Temperature"
     },
     {
@@ -1634,9 +1379,7 @@
       "registry_type": null,
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_INT16"
-      ]
+      "type": "CN_INT16"
     },
     {
       "id": 1024,
@@ -1646,9 +1389,7 @@
       "registry_type": null,
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT16"
-      ]
+      "type": "CN_UINT16"
     },
     {
       "id": 1025,
@@ -1658,9 +1399,7 @@
       "registry_type": null,
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT16"
-      ]
+      "type": "CN_UINT16"
     },
     {
       "id": 1026,
@@ -1670,9 +1409,7 @@
       "registry_type": null,
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT16"
-      ]
+      "type": "CN_UINT16"
     },
     {
       "id": 1027,
@@ -1682,9 +1419,7 @@
       "registry_type": null,
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT16"
-      ]
+      "type": "CN_UINT16"
     },
     {
       "id": 1028,
@@ -1694,9 +1429,7 @@
       "registry_type": null,
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT16"
-      ]
+      "type": "CN_UINT16"
     },
     {
       "id": 1029,
@@ -1706,9 +1439,7 @@
       "registry_type": null,
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT16"
-      ]
+      "type": "CN_UINT16"
     },
     {
       "id": 1030,
@@ -1718,9 +1449,7 @@
       "registry_type": null,
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT16"
-      ]
+      "type": "CN_UINT16"
     },
     {
       "id": 1031,
@@ -1730,9 +1459,7 @@
       "registry_type": null,
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT16"
-      ]
+      "type": "CN_UINT16"
     },
     {
       "id": 1056,
@@ -1742,9 +1469,7 @@
       "registry_type": null,
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_INT16"
-      ]
+      "type": "CN_INT16"
     },
     {
       "id": 1124,
@@ -1754,9 +1479,7 @@
       "registry_type": null,
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_INT16"
-      ]
+      "type": "CN_INT16"
     },
     {
       "id": 1125,
@@ -1766,9 +1489,7 @@
       "registry_type": null,
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_INT16"
-      ]
+      "type": "CN_INT16"
     },
     {
       "id": 1126,
@@ -1778,9 +1499,7 @@
       "registry_type": null,
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_INT16"
-      ]
+      "type": "CN_INT16"
     },
     {
       "id": 1127,
@@ -1790,9 +1509,7 @@
       "registry_type": null,
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_INT16"
-      ]
+      "type": "CN_INT16"
     },
     {
       "id": 1281,
@@ -1802,9 +1519,7 @@
       "registry_type": null,
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT16"
-      ]
+      "type": "CN_UINT16"
     },
     {
       "id": 1282,
@@ -1814,9 +1529,7 @@
       "registry_type": null,
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT16"
-      ]
+      "type": "CN_UINT16"
     },
     {
       "id": 1283,
@@ -1826,9 +1539,7 @@
       "registry_type": null,
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT16"
-      ]
+      "type": "CN_UINT16"
     },
     {
       "id": 1284,
@@ -1838,9 +1549,7 @@
       "registry_type": null,
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT16"
-      ]
+      "type": "CN_UINT16"
     },
     {
       "id": 1285,
@@ -1850,9 +1559,7 @@
       "registry_type": null,
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT16"
-      ]
+      "type": "CN_UINT16"
     },
     {
       "id": 1286,
@@ -1862,9 +1569,7 @@
       "registry_type": null,
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT16"
-      ]
+      "type": "CN_UINT16"
     },
     {
       "id": 1287,
@@ -1874,9 +1579,7 @@
       "registry_type": null,
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT16"
-      ]
+      "type": "CN_UINT16"
     },
     {
       "id": 1288,
@@ -1886,9 +1589,7 @@
       "registry_type": null,
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_UINT16"
-      ]
+      "type": "CN_UINT16"
     },
     {
       "id": 1297,
@@ -1898,9 +1599,7 @@
       "registry_type": null,
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_BOOL"
-      ]
+      "type": "CN_BOOL"
     },
     {
       "id": 1298,
@@ -1910,9 +1609,7 @@
       "registry_type": null,
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_BOOL"
-      ]
+      "type": "CN_BOOL"
     },
     {
       "id": 1299,
@@ -1922,9 +1619,7 @@
       "registry_type": null,
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_BOOL"
-      ]
+      "type": "CN_BOOL"
     },
     {
       "id": 1300,
@@ -1934,9 +1629,7 @@
       "registry_type": null,
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_BOOL"
-      ]
+      "type": "CN_BOOL"
     },
     {
       "id": 1301,
@@ -1946,9 +1639,7 @@
       "registry_type": null,
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_BOOL"
-      ]
+      "type": "CN_BOOL"
     },
     {
       "id": 1302,
@@ -1958,9 +1649,7 @@
       "registry_type": null,
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_BOOL"
-      ]
+      "type": "CN_BOOL"
     },
     {
       "id": 1303,
@@ -1970,9 +1659,7 @@
       "registry_type": null,
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_BOOL"
-      ]
+      "type": "CN_BOOL"
     },
     {
       "id": 1304,
@@ -1982,9 +1669,7 @@
       "registry_type": null,
       "unit": null,
       "registry_value_fn": null,
-      "accepted_types": [
-        "CN_BOOL"
-      ]
+      "type": "CN_BOOL"
     }
   ]
 }

@@ -38,14 +38,14 @@ class TelemetryTests(unittest.TestCase):
     def test_status_types_and_polling_match(self):
         package = yaml.load((ROOT / "packages/core_telemetry.yml").read_text(), Loader=Loader)
         code = package["canbus"][0]["on_frame"][0]["then"][0]["lambda"]
-        matches = re.findall(r"comfoair_on_frame_case\((\d+), id\(comfoair\), (\w+), true\)", code)
+        matches = re.findall(r"comfoair_on_frame_case\((\d+), id\(comfoair\), (\w+)\)", code)
         self.assertEqual({int(pdo) for pdo, _ in matches}, set(package["zehnder_comfoair_q"]["request_ids"]))
         entities = {entity["id"] for kind in ("sensor", "text_sensor") for entity in package.get(kind, [])}
         self.assertEqual({name for _, name in matches}, entities)
         mapping = json.loads((ROOT / "components/zehnder_comfoair_q/pdo_mapping.json").read_text())
-        types = {entry["id"]: entry["accepted_types"] for entry in mapping["pdos"]}
+        types = {entry["id"]: entry["type"] for entry in mapping["pdos"]}
         for pdo, _ in matches:
-            self.assertEqual(types[int(pdo)], ["CN_UINT32"] if int(pdo) in (338, 342, 343) else ["CN_UINT8"])
+            self.assertEqual(types[int(pdo)], "CN_UINT32" if int(pdo) in (338, 342, 343) else "CN_UINT8")
         self.assertNotIn("send_command", code)
 
     def test_timer_addresses_and_formatting(self):
@@ -84,7 +84,8 @@ class TelemetryTests(unittest.TestCase):
             self.assertNotIn("filters", sensor)
         self.assertEqual([f["can_id"] >> 14 for f in package["canbus"][0]["on_frame"]], [305, 306])
         for frame in package["canbus"][0]["on_frame"]:
-            self.assertIn("x.size() == 2", frame["then"][0]["lambda"])
+            self.assertIn("publish_raw_state", frame["then"][0]["lambda"])
+            self.assertIn("PdoType::UINT16", frame["then"][0]["lambda"])
 
 
 if __name__ == "__main__":
