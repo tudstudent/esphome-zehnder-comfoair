@@ -2,6 +2,7 @@
 
 #include <esphome.h>
 #include "airflow_constraints.h"
+#include "pdo_types.h"
 #include <cmath>
 
 using namespace esphome; // needed for ESP_LOGx to work
@@ -129,6 +130,28 @@ namespace zehnder_comfoair_q
         }
 
         template <class T>
+        static void publish_pdo_state(T state_id, const std::vector<uint8_t> &can_message,
+                                      uint16_t pdo_id, bool legacy_is_unsigned = false)
+        {
+            if (find_pdo_definition(pdo_id) == nullptr)
+            {
+                // Preserve custom, unregistered PDO handlers in existing user YAML.
+                publish_state(state_id, can_message, legacy_is_unsigned);
+                return;
+            }
+            PdoValue value;
+            if (!decode_pdo(pdo_id, can_message, value))
+            {
+                ESP_LOGW(TAG, "Invalid payload for PDO %u (length %zu)", pdo_id, can_message.size());
+                return;
+            }
+            if (value.is_signed)
+                publish_state(state_id, value.signed_value());
+            else
+                publish_state(state_id, value.raw);
+        }
+
+        template <class T>
         static void publish_state(T state_id, const std::vector<uint8_t> &can_message, bool is_unsigned = false)
         {
             const auto size = can_message.size();
@@ -218,5 +241,5 @@ namespace zehnder_comfoair_q
 
 #define comfoair_on_frame_case(pdo_id, comfoair_component, sensor_id, unsigned) \
     case pdo_id:                                                                \
-        comfoair_component->publish_state(sensor_id, x, unsigned);              \
+        comfoair_component->publish_pdo_state(sensor_id, x, pdo_id, unsigned);   \
         break;
