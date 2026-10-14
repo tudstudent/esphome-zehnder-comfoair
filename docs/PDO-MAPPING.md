@@ -43,7 +43,8 @@ ESPHome numeric states are floats. UINT32/INT64 values may lose precision when
 published as numeric sensors; exact text/bitset processing must use integer
 values before publication. The duration formatter and PDO 230 constraint path
 already follow this rule. A type table entry is not a claim of a reachable CAN
-handler: high-ID addressing/filtering and unexposed telemetry are separate work.
+handler: high-ID transport is bounded to 2047 as documented in `PDO-ADDRESSING.md`;
+actual firmware availability and physical meanings still require evidence.
 
 ## Updating the Reference
 

@@ -17,6 +17,13 @@ id(comfoair).request_pdo(212);
 check(bus.requests.size() == request_count + 1, "read-only mode still permits PDO read requests");
 bus.requests.clear();
 id(comfoair).set_read_only(false);
+const auto high_request_count = bus.requests.size();
+id(comfoair).request_pdo(1024);
+check(bus.requests.size() == high_request_count + 1 && bus.requests.back().can_id == ((1024u << 14) | 0x6a) &&
+      bus.requests.back().remote_transmission_request, "high PDO emits the correct extended RTR address");
+id(comfoair).request_pdo(2048);
+check(bus.requests.size() == high_request_count + 1, "out-of-range direct request is rejected");
+bus.requests.clear();
 
 id(comfoair).set_read_only(true);
 check(!id(comfoair).request_pressure_property(0, 3) && !id(comfoair).request_pressure_property(3, 3) &&

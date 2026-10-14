@@ -31,9 +31,11 @@ class TelemetryTests(unittest.TestCase):
         config = component.CONFIG_SCHEMA({"id": "comfoair", "canbus_id": "bus"})
         self.assertEqual(config["request_ids"], [])
 
-    def test_high_ids_remain_explicitly_unsupported(self):
+    def test_high_ids_within_supported_transport_range(self):
+        config = component.CONFIG_SCHEMA({"id": "comfoair", "canbus_id": "bus", "request_ids": [1024, 1304, 2047]})
+        self.assertEqual(config["request_ids"], [1024, 1304, 2047])
         with self.assertRaises(cv.Invalid):
-            component.CONFIG_SCHEMA({"id": "comfoair", "canbus_id": "bus", "request_ids": [1024]})
+            component.CONFIG_SCHEMA({"id": "comfoair", "canbus_id": "bus", "request_ids": [2048]})
 
     def test_status_types_and_polling_match(self):
         package = yaml.load((ROOT / "packages/core_telemetry.yml").read_text(), Loader=Loader)
@@ -146,6 +148,24 @@ class TelemetryTests(unittest.TestCase):
         self.assertEqual(sum(row["registry"] for row in rows), 86)
         self.assertFalse([row for row in rows if row["registry"] and row["status"] != "mapped"])
         self.assertEqual(sorted(set(handlers) - {row["id"] for row in rows}), [305, 306])
+
+    def test_all_broad_pdo_filters_accept_reference_high_ids_only(self):
+        for path in (ROOT / "packages").glob("*.yml"):
+            text = path.read_text(encoding="utf-8")
+            if "on_frame:" not in text:
+                continue
+            package = yaml.load(text, Loader=Loader)
+            if not isinstance(package, dict):
+                continue
+            for bus in package.get("canbus", []):
+                for frame in bus.get("on_frame", []):
+                    if frame.get("can_id") != 0x40:
+                        continue
+                    mask = frame["can_id_mask"]
+                    for pdo in (16, 1023, 1024, 1304, 2047):
+                        self.assertEqual(((pdo << 14) | 0x41) & mask, 0x40, path.name)
+                    for unrelated in (0x10000001, 0x1f000a81, 0x1f800000):
+                        self.assertNotEqual(unrelated & mask, 0x40, path.name)
 
 
 if __name__ == "__main__":

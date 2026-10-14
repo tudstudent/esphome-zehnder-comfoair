@@ -3,6 +3,7 @@
 #include <esphome.h>
 #include "airflow_constraints.h"
 #include "pdo_types.h"
+#include "pdo_address.h"
 #include "rmi_read_response.h"
 #include <cmath>
 #include <string_view>

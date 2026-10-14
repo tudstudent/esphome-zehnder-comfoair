@@ -24,7 +24,7 @@ CONFIG_SCHEMA = (
             cv.GenerateID(CONF_CANBUS_ID): cv.use_id(CanbusComponent),
             cv.Optional(CONF_REQUEST_INTERVAL, default="1h"): cv.update_interval,
             cv.Optional(CONF_REQUEST_IDS, default=[]): cv.All(
-                cv.ensure_list(cv.int_range(min=0, max=0x3ff)),
+                cv.ensure_list(cv.int_range(min=0, max=0x7ff)),
                 lambda ids: list(dict.fromkeys(ids)),
             ),
             cv.Optional(CONF_REQUEST_DELAY, default="100ms"): cv.positive_time_period_milliseconds,

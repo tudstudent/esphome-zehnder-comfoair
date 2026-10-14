@@ -38,7 +38,7 @@ def render(mapping):
         "  - id: !extend ${comfoair_canbus_id}",
         "    on_frame:",
         "      - can_id: 0x40",
-        "        can_id_mask: 0x1f003fc0",
+        "        can_id_mask: 0x1e003fc0",
         "        use_extended_id: true",
         "        remote_transmission_request: false",
         "        then:",

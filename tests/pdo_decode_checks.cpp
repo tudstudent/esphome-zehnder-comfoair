@@ -1,6 +1,7 @@
 #include "pdo_types.h"
 #include "airflow_constraints.h"
 #include "rmi_read_response.h"
+#include "pdo_address.h"
 #include <cstdlib>
 #include <iostream>
 #include <limits>
@@ -62,6 +63,15 @@ int main() {
     check(decode_pdo_value(PdoType::UINT16, {0x67, 0}, value) && value.raw == 103,
           "raw diagnostics require an explicit representation");
     RmiReadResponse reply;
+    uint32_t encoded = 0;
+    for (auto pdo : std::vector<uint16_t>{16, 65, 1023, 1024, 1304, 2047}) {
+        check(make_pdo_can_id(pdo, 42, encoded) && (encoded >> 14) == pdo && is_pdo_can_id(encoded),
+              "low/high PDO addresses round-trip without changing namespace");
+    }
+    check(!make_pdo_can_id(2048, 42, encoded) && !make_pdo_can_id(1, 0, encoded) && !make_pdo_can_id(1, 64, encoded),
+          "unsupported IDs/node values cannot alias another address");
+    check(is_pdo_can_id(0x01000041) && !is_pdo_can_id(0x10000001) && !is_pdo_can_id(0x1f000a81) &&
+          !is_pdo_can_id(0x1f800000) && !is_pdo_can_id(0x80000041), "PDO filter excludes heartbeat/RMI/firmware/invalid 29-bit IDs");
     const uint32_t reply_id = 0x1f000000u | (2u << 17) | (42u << 6) | 1u;
     reply.start(2, 42, 1);
     check(reply.receive(reply_id, false, false, {1}) == RmiReadStatus::IGNORED, "ignore standard frame");
