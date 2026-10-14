@@ -44,3 +44,16 @@ The tool does no discovery, controls, reset, or firmware operations. It preserve
 error/timeout responses and writes private raw bytes, not guessed Pa readings.
 A timeout does not prove a property is absent. Do not expand the scope into a
 generic command scanner. Remove the debug API action when research is complete.
+
+## KD Results
+
+The fixed GET path was exercised on KD on 2026-10-14, with no setting writes:
+subunits 1 and 2 each return `01` for properties 1 and 2. Properties 3-16 each
+return the protocol's explicit error flag with payload `0E` (Unknown property).
+All 32 selected reads completed with matching replies, not timeouts.
+
+This validates the scoped transport, response addressing/sequence, and error
+handling. It does not identify the meaning of the two one-byte values or prove
+that dynamic pressure/scaling is available through these property IDs. No
+undocumented command IDs, mode switches, firmware operations, or factory commands
+were attempted. Further investigation must not simply enlarge a blind scan.

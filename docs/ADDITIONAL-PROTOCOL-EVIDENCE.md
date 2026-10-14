@@ -68,12 +68,14 @@ two subunits, and documents `0x01` as a read-only Get-property command:
 
 https://github.com/michaelarnauts/aiocomfoconnect/blob/8fe395b3f8657e25ef8c5a6ccea5aab06808a514/docs/PROTOCOL-RMI.md
 
-A restricted pressure-unit reader is a useful next experiment, not implemented
-or exercised by this research. It must use only GET, enforce the owning node and
-pressure unit/subunits, bound the property list/rate, validate response addressing
-and fragmentation, and never expose generic factory/configuration commands.
+A restricted pressure-unit reader is now implemented separately and exercised
+on KD; see `PRESSURE-PROPERTY-READS.md`. It uses only GET, enforces the owning node
+and pressure unit/subunits, bounds the property list/rate, validates response
+addressing/fragmentation, and exposes no generic factory/configuration commands.
 CAN command bits 12/13 remain unclear in the original discussion; response framing
-must be checked rather than treating silence as proof that a property is absent.
+was checked with live success/error replies rather than treating silence as proof
+that a property is absent. The bounded property 1-16 experiment found only two
+one-byte values and explicit Unknown-property replies, not a pressure scale.
 
 No examined implementation provided an independently verified Pa scale for
 PDO 305/306. There is useful new channel association evidence in the existing KD
