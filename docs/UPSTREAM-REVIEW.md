@@ -56,8 +56,21 @@ each reporter's installation or reviewing every historical dependency-bump diff.
 - [#108 Analog inputs](https://github.com/yoziru/esphome-zehnder-comfoair/pull/108):
   independent voltage-only package, ready for review; full fork CI passes at
   `477adc7`, with physical nonzero calibration explicitly unverified.
+- [#109 High-PDO addressing](https://github.com/yoziru/esphome-zehnder-comfoair/pull/109):
+  independent transport-only block at `692d8a3`, ready with full isolated CI. KD
+  confirms PDO 1304 reception; no new startup requests or physical labels.
 - Fork integration PR #3 is validation only, not an upstream mega-PR or an
   authorization to merge. Further blocks retain separate scopes/dependencies.
+
+The complete integrated software/test stack passes full fork CI at `91299e9`:
+https://github.com/tudstudent/esphome-zehnder-comfoair/actions/runs/38617692807
+
+All three submissions are ready for review, not merged. KD's normal image has
+the temporary pressure debug action removed and is archived privately with
+SHA-256. A final five-minute passive observation captured 1,074 PDO frames with
+no captured decoding errors or long-block warnings; Auto/Medium/Normal and the
+accessory availability gates remain intact. No uptime sensor was exposed, so
+the observation does not establish a reboot-counter history or long-term stability.
 
 Raw reporter logs, private KD captures, credentials, and endpoints are not copied
 into this document. Firmware/Husky research remains parked separately in

@@ -41,7 +41,8 @@ declares this project's `zehnder_comfoair_q` component, ESP-IDF, and native CAN.
 PR-sized branches/commits and submission evidence are listed in `docs/PR-PLAN.md`.
 The owner approved starting fork pushes/upstream submissions on 2026-10-14.
 Upstream PR #107 (strict types) and #108 (analog voltage) are ready for review;
-both isolated blocks passed full fork CI. The integration stack is pushed for
+both isolated blocks passed full fork CI. Independent addressing PR #109 also
+passes its isolated CI and is ready for review. The integration stack is pushed for
 combined validation only. All 86 registry entries have handlers: ComfoCool is
 explicitly installation-gated and 13 uncertain entries are passive integer text.
 `docs/PDO-COVERAGE.md` classifies every one of the 158 reference entries; 71 are
@@ -280,9 +281,14 @@ is not yet confirmed. Keep discovery tools and verified sensor additions separat
 - [x] Avoid duplicate preheater submission: existing PR #63 already covers it.
 - [x] Push focused strict-type and analog blocks, submit #107/#108, and attach
   exact passing CI commits/runs. Do not merge automatically.
-- [ ] Final latest-stack CI and normal-operation observation after pressure/high-ID
-  changes. Earlier full CI and a 90-second bounded observation pass; latest CI
-  includes real scheduler timeout/fragment lifecycle checks.
+- [x] Split high-ID transport independently onto upstream main, submit #109, and
+  verify all isolated host/sanitizer/schema/dashboard/seven-build checks.
+- [x] Final latest-stack CI at `91299e9`: full host/sanitizer/bounds, dashboard,
+  and 15 firmware builds pass, including scheduler timeout/fragment lifecycle.
+- [x] Complete the five-minute passive normal-image KD observation: 1,074 PDO
+  frames, no captured decoding errors/long-block warnings, normal settings and
+  missing accessory states preserved. No uptime sensor was exposed; this is not
+  a reboot-counter or long-term soak guarantee.
 - [x] Archive the exact normal KD image/configuration privately with SHA-256,
   remove the temporary pressure API action, and verify normal state after upload.
 - [ ] Prepare further independent review branches rather than submit the stacked

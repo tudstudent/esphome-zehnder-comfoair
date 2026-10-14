@@ -29,10 +29,11 @@ acceptance order and integration approach. Keep necessary dependencies explicit.
 | --- | --- | --- | --- |
 | Strict PDO types | `pr/strict-pdo-types` / `06ad8e1` | [#107](https://github.com/yoziru/esphome-zehnder-comfoair/pull/107), ready | [38605529783](https://github.com/tudstudent/esphome-zehnder-comfoair/actions/runs/38605529783) |
 | Analog voltage inputs | `pr/analog-inputs` / `477adc7` | [#108](https://github.com/yoziru/esphome-zehnder-comfoair/pull/108), ready | [38606668903](https://github.com/tudstudent/esphome-zehnder-comfoair/actions/runs/38606668903) |
+| High-PDO addressing | `pr/extended-pdo-addressing` / `692d8a3` | [#109](https://github.com/yoziru/esphome-zehnder-comfoair/pull/109), ready | [38618212132](https://github.com/tudstudent/esphome-zehnder-comfoair/actions/runs/38618212132) |
 
-Both start directly from upstream main, not the full stack. The analog block
+All three start directly from upstream main, not the full stack. The analog block
 validates UINT8/one-byte payloads explicitly and therefore does not require #107.
-Fork PRs #1/#2 are test mirrors; #3 exercises `integration/kd-development` only.
+Fork PRs #1/#2/#4 are test mirrors; #3 exercises `integration/kd-development` only.
 No PR is merged automatically. Further upstream submissions stay independent.
 Preheater already overlaps upstream PR #63, so do not submit a competing copy.
 
@@ -64,14 +65,17 @@ malformed hexadecimal suffixes; include it with the diagnostic change set.
   been stimulated. PDO 212 returned a two-byte 233 sample matching 23.3 C.
 - Full Linux generated ESPHome host startup/feedback, saved-preference restart,
   ASan/UBSan, iterator-bounds, dashboard, and firmware-build tests pass in fork CI
-  for the two isolated submissions and integration through `2226bcd`:
-  [38610547246](https://github.com/tudstudent/esphome-zehnder-comfoair/actions/runs/38610547246).
-  Latest pressure/addressing changes are under a separate expanded run. Linux
-  results are CI results, not local Windows execution.
+  for all three isolated submissions and the complete integration at `91299e9`:
+  [38617692807](https://github.com/tudstudent/esphome-zehnder-comfoair/actions/runs/38617692807).
+  This includes all 15 firmware configurations, climate/no-climate and ComfoCool
+  enabled/disabled host variants, and real scheduler timeout/fragment lifecycle
+  tests. Linux results are CI results, not local Windows execution.
 - KD normal image is privately archived with SHA-256; the temporary pressure API
   action is removed and verified absent after encrypted OTA. Auto/Medium/Normal,
-  all 109 entities, and accessory missing-state gates remain intact. A 90-second
-  observation is bounded testing, not a long-term uptime/soak guarantee.
+  all 109 entities, and accessory missing-state gates remain intact. A final
+  300-second passive observation captured 1,074 PDO frames with no captured
+  decoding errors or long-block warnings. No uptime sensor was exposed, so this
+  is not an uptime-counter check or a long-term soak guarantee.
 - All RF/factory/seasonal modes, active preheating, counter wraps/resets, accessory
   installations, other units, and calibrated pressure meaning are not all
   hardware-validated. Claims must remain limited to recorded observations.
