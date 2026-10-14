@@ -34,7 +34,33 @@ declares this project's `zehnder_comfoair_q` component, ESP-IDF, and native CAN.
   Do not claim hardware validation for absent accessories or untested features.
 - Obtain the owner's approval before pushing work branches or opening PRs.
 
-## Baseline
+## Development Progress
+
+Local PR-sized branches/commits are listed in `docs/PR-PLAN.md`; nothing is pushed
+or submitted upstream yet. The pinned inventory covers 158 documented IDs and
+all 86 Python registry definitions. Base plus implemented known optional handlers
+now cover 65 registry IDs. The other 21 are 8 accessory entries and 13 uncertain
+entries requiring separate work. Experimental PDOs 305/306 are outside that
+inventory and deliberately retain unscaled, unitless raw labels.
+
+KD builds and OTA/API checks pass on ESPHome 2026.9.1 / ESP-IDF 5.5.5. The core
+status/timer package returns plausible normal states without payload errors.
+The owner-approved fan experiment restored Auto/Medium/Normal. Normal command
+availability is restored; read-only mode is an opt-in development guard.
+Original YAML/credentials remain unchanged; a separate development YAML, validated
+OTA image, and checksum manifest are preserved locally outside Git. KD exposes
+88 API entities, including the unitless raw candidates. Serial recovery and an
+original 2025 firmware binary are not confirmed. Preheater/analog channels were
+read as zero in the current condition; active/nonzero behavior remains untested.
+
+A targeted PDO 212 read returned two bytes `E9 00` (233, or 23.3 C) on KD. The
+decoder retains the explicit documented one-byte alternative for other variants;
+positive readings alone do not establish signedness independently of the reference.
+
+Pressure evidence and remaining uncertainty are in `docs/PRESSURE-DISCOVERY.md`.
+No calibrated Pa values or physical side assignments are asserted.
+
+## Initial Baseline
 
 Initial checkout: `d123d47cfcf0b57e79b059266bf4be951156bfae`, project release
 2026.10.1. Reference aiocomfoconnect revision:
@@ -70,35 +96,35 @@ direct CAN. Verify ambiguous payload representation on the actual CAN bus.
 - [x] Locate the saved KD YAML and identify this project's source declaration.
 - [x] Update PC tooling: ESPHome 2026.9.1 and aioesphomeapi 46.3.0 on Python 3.13;
   verify versions, API/discovery imports, and dependency consistency.
-- [ ] Verify authenticated KD-only API/log access using locally held credentials.
-- [ ] Capture device version, baseline readings, uptime, and CAN/log errors.
-- [ ] Establish the running image's component revision if possible. The saved
-  YAML has an unpinned GitHub source, and KD advertises ESPHome 2025.8.4.
-- [ ] Preserve reproducible known-good configuration/firmware; verify OTA/serial
-  recovery readiness locally before asking for any firmware-upload permission.
-- [ ] Assess the saved KD YAML against current project packages: it contains
-  custom inline automations, not just the stock package composition. Review
-  startup/feedback write paths before proposing migration.
+- [x] Verify authenticated KD-only API/log access using locally held credentials.
+- [x] Capture device version, baseline readings, and CAN/log behavior; retain
+  private captures locally. Long-term stability/uptime observation remains pending.
+- [x] Establish the current development image's source revision and retain a
+  checksum manifest. The original 2025 image's exact component revision is unknown.
+- [x] Preserve a tested development configuration/OTA image; authenticated OTA
+  recovery has been exercised. Original-image and serial recovery remain pending.
+- [x] Review the saved KD YAML's custom startup/feedback automations and apply
+  the upstream safety guards in a separate private development configuration.
 
 ## Block 1 / PR 1 - Existing Types, States, and Safety
 
 - [ ] Review each current handler's type, signedness, length, endian conversion,
   scaling, enum meaning, and unit; add type-specific width checks rather than
   accepting any supported length regardless of the PDO definition.
-- [ ] Resolve PDO 212's source discrepancy: documentation says UINT8, while
-  aiocomfoconnect uses INT16. The current decoder infers width from the frame.
+- [x] Verify PDO 212's width on KD: two bytes, matching the Python registry width.
+  Retain an explicit UINT8 alternative for documentation/variant compatibility.
 - [ ] Resolve PDO 213/216 power scaling: documentation examples imply /100,
   whereas aiocomfoconnect treats raw values as watts and this project's YAML
   converts raw values to kW with /1000. Use evidence before changing scaling.
 - [ ] Review PDO 65 away versus fan OFF presentation without breaking feedback
   guards or introducing outbound commands during state synchronization.
-- [ ] Fix reversed PDO 119/120 comments in `packages/sensors.yml`; the CAN
+- [x] Fix reversed PDO 119/120 comments in `packages/sensors.yml`; the CAN
   dispatch currently routes exhaust 119 and supply 120 correctly.
 - [ ] Review temperature-location names and unknown enum handling; do not assert
   meanings that the reference itself marks uncertain.
 - [ ] Test unsigned/signed boundaries, negative temperatures, sentinels, malformed
   frames, startup, and feedback-only operation using the existing host suite.
-- [ ] Document numeric float precision and keep no-change formatting/bitsets
+- [x] Document numeric float precision and keep no-change formatting/bitsets
   outside lossy numeric-state interpretation where needed.
 
 Acceptance: focused confirmed fixes with regression tests and compatible YAML;
@@ -108,14 +134,15 @@ hardware-dependent findings remain explicitly pending until permitted testing.
 
 - [ ] Create one authoritative local mapping with PDO ID, reference type,
   conversion, scale, unit, enums, certainty, and upstream revision.
-- [ ] Add a reproducible comparison against pinned aiocomfoconnect definitions;
+- [x] Add a reproducible comparison against pinned aiocomfoconnect definitions;
   record documentation/implementation disagreements instead of copying blindly.
 - [ ] Keep request lists, CAN dispatch, and entity metadata consistent; reduce
   duplicated hand-maintained mappings while preserving existing user YAML.
-- [ ] Evaluate a reusable typed INT64 decoder and other required converter types.
+- [x] Add reusable BOOL, UINT8/16/32, and INT8/16/64 decoders with exact widths.
   PDO 230 already has a dedicated 8-byte decoder; preserve or reuse it rather
   than replacing its integer bitset with a floating-point sensor value.
-- [ ] Add converter tests only for actual gaps; retain existing constraint tests.
+- [x] Add boundary/width tests for all implemented integer converters; retain
+  existing constraint tests. Full Linux host/sanitizer execution remains pending.
 - [ ] Investigate support for documented PDO IDs above 1023: the schema currently
   caps request IDs at 0x3ff and the base receive mask also constrains high bits.
   Validate direct-CAN addressing/filter behavior before expanding either.
@@ -125,22 +152,23 @@ does not silently lose information. Keep this separate from added telemetry.
 
 ## Block 3 / PR 3 Series - Missing Known Telemetry
 
-- [ ] Add complete device state, filter-changing status (18), manual/fan-mode
+- [x] Add complete device state, filter-changing status (18), manual/fan-mode
   alternatives (56, 70, 71), RF pairing (176), and unit settings (208, 224).
-- [ ] Add timer PDOs 85/86/87 using the existing unsigned duration helper.
-- [ ] Add preheater energy/current power (144/145/146), frost unbalance (228),
+- [x] Add timer PDOs 86/87 using the existing unsigned duration helper.
+- [ ] Add optional ComfoCool timer PDO 85 with accessory validation.
+- [x] Add preheater energy/current power (144/145/146), frost unbalance (228),
   bypass override (338), additional fan-mode representations (342/343), and
   analog inputs (369-372).
 - [ ] Add optional ComfoFond (416-419) and ComfoCool (784/785/802) telemetry;
   assess other documented accessory fields individually.
 - [ ] Account for every remaining reference entry: implemented, optional raw
   diagnostic, uncertain, unavailable on KD, or deliberately excluded.
-- [ ] Preserve existing optional PDO 226/230 packages and verify merging behavior;
+- [x] Preserve existing optional PDO 226/230 packages and verify merging behavior;
   do not enable unsupported accessories by default.
 - [ ] Choose device/state classes and precision carefully; verify counter resets
   and wraps before choosing energy state classes.
-- [ ] Update examples and coverage claims. Split core telemetry, analog inputs,
-  and accessories into smaller PRs when useful to reviewers.
+- [x] Add separate examples/branches for core telemetry, preheater, analog inputs,
+  and experimental raw candidates. Accessory coverage remains separate/pending.
 
 Acceptance: each subset has tests and explicit availability/validation notes.
 
@@ -148,7 +176,7 @@ Acceptance: each subset has tests and explicit availability/validation notes.
 
 - [ ] Reuse existing `comfoair_dump` logs and request helpers where sufficient;
   add opt-in/rate-limited capture rather than a second CAN transport.
-- [ ] Capture PDO/CAN IDs, raw bytes, lengths, timestamps, and requested versus
+- [x] Capture PDO IDs, raw bytes, lengths, relative timestamps, and requested versus
   spontaneous observations, including unregistered PDOs.
 - [ ] Support targeted bounded read requests; verify read-only RMI mechanisms
   individually before use. No configuration writes or unbounded bus scans.
@@ -171,7 +199,7 @@ values around 103/105. These are candidates only, not identified pressure signal
   exposed through PDO/direct CAN or read-only RMI at all.
 - [ ] Research candidates in upstream protocol notes and related implementations;
   do not label unknown IDs as pressure without evidence.
-- [ ] Correlate candidates with airflow/RPM and owner-approved fan-level changes.
+- [x] Correlate candidates with airflow/RPM and owner-approved fan-level changes.
   Never obstruct ducts or disable safety mechanisms to stimulate readings.
 - [ ] Establish payload type, units (for example Pa), scale, location,
   differential/reference meaning, range, and update behavior.

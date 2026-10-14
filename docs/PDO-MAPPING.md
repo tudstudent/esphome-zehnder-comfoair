@@ -24,6 +24,9 @@ custom code without a PDO ID; it cannot enforce a known PDO's exact width.
 
 - PDO 212 explicitly accepts UINT8 or INT16, because documentation and Python
   disagree. It rejects other widths. Both forms remain raw tenths of a degree.
+  A targeted Q600 KD read on 2026-10-14 returned `E9 00` (two bytes, 233), matching
+  its displayed 23.3 C value. This confirms the two-byte width on that unit, not
+  every hardware variant or the signedness of a positive-only sample.
 - PDO 213/216 keep their existing raw-watts interpretation and YAML conversion
   to kW. Documentation examples implying /100 are recorded, not silently applied.
 - PDO 69 has no documented type and no registry definition. No type is invented.
