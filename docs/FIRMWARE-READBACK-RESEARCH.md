@@ -102,3 +102,36 @@ whitelist, bounded block sizes/timeouts and transfer rates, correct chunk orderi
 and final markers, private output files, and per-block SHA-256 checks. Repeat
 reads where safe to check consistency. Do not describe a partial image as a full
 flash backup or assume it includes bootloader/configuration memory.
+
+## Spare PCB / STM32F103 Hardware Route
+
+The owner reports an older PCB with an STM32F103 and is willing to consider a
+non-erasing chip-reader/JTAG approach. The full part marking and board identity
+(main controller versus accessory) are still needed; no hardware probe was made.
+
+For this MCU family, SWD/JTAG is a more appropriate starting point than treating
+the device like a removable SPI EEPROM. An ST-Link can identify a properly wired
+target and, if readout protection permits, read its internal flash. The exact
+suffix determines capacity/page layout; do not assume a fixed size or blindly
+read the entire address space.
+
+Proposed capability check on an explicitly identified, disconnected spare PCB:
+
+1. Confirm full MCU marking, PCB role, debug pads, ground, and interface voltage.
+   Isolate it from mains, the working ventilation unit, and connected actuators.
+2. Use read-only tool operations to identify the device and protection status.
+   Do not run auto-programming, erase, unlock, or read-unprotect operations.
+3. If readable, extract only the documented main-flash range and save privately.
+   Repeat the read and compare SHA-256. Capture device/layout metadata separately.
+4. If protection blocks reading, stop. Removing STM32 readout protection can mass
+   erase flash, contrary to the owner's hard constraint. Do not attempt bypasses.
+
+Halting/resetting a spare processor may be needed for debug attachment and is not
+the same as erasing, but it must not be applied to the working unit or an
+unidentified connected board. A debug-readable firmware image may include the
+vendor bootloader/application within main flash; external EEPROM, protected
+regions, and configuration elsewhere require separate identification.
+
+Whether CAN-mediated readback can access an image that is debug-protected is a
+separate unknown. Interface capability is not evidence that a particular board
+is readable. The owner need not purchase a LAN C to pursue the hardware route.
