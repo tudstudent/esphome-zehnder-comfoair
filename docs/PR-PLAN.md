@@ -17,6 +17,7 @@ acceptance order and integration approach. Keep necessary dependencies explicit.
 | Analog inputs | `feat/analog-input-telemetry` | `e9728bd` | Requires typed decoding; independent optional package |
 | Unidentified pressure candidates | `experiment/unidentified-pressure-pdos` | `42e2e88` | Experimental raw data only; no Pa/side claims |
 | Strict-type cleanup | `refactor/strict-pdo-types` | `b484dd3` | Required cleanup: one type per PDO, three-argument handlers, explicit raw representation; no compatibility paths |
+| ComfoFond telemetry | `feat/comfofond-telemetry` | `d2173af` | Independent optional package, strict types, presence-gated availability; absence validated on KD |
 
 Do not submit the earlier type-mapping branch as-is: it contained compatibility
 paths that the strict cleanup removes. Fold the final strict implementation into
@@ -32,7 +33,7 @@ malformed hexadecimal suffixes; include it with the diagnostic change set.
 
 ## Validation Boundaries
 
-- All 17 Python inventory, capture, request/schema, and optional-package tests
+- All 18 Python inventory, capture, request/schema, and optional-package tests
   pass locally, as do generated-table and pinned upstream-reference checks.
 - The production standalone C++ decoders compile/run with MSVC on Windows.
 - KD-specific ESP32-C3/ESP-IDF/DM9051 builds, encrypted API reconnection, OTA,
@@ -53,8 +54,8 @@ malformed hexadecimal suffixes; include it with the diagnostic change set.
 
 ## Remaining Separate Work
 
-- ComfoFond/ComfoCool accessory packages with availability guards and explicit
-  installed-hardware validation; do not fabricate presence or default temperatures.
+- ComfoCool package with explicit installed-hardware validation; installed
+  ComfoFond operation remains untested. Do not fabricate accessory presence.
 - Classify the remaining unknown/uncertain Python registry fields and
   documentation-only IDs; retain opt-in raw observation rather than guessed names.
 - Verify high-PDO addressing/filtering before expanding the 1023 request limit.

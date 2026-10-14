@@ -41,7 +41,7 @@ declares this project's `zehnder_comfoair_q` component, ESP-IDF, and native CAN.
 Local PR-sized branches/commits are listed in `docs/PR-PLAN.md`; nothing is pushed
 or submitted upstream yet. The pinned inventory covers 158 documented IDs and
 all 86 Python registry definitions. Base plus implemented known optional handlers
-now cover 65 registry IDs. The other 21 are 8 accessory entries and 13 uncertain
+now cover 69 registry IDs. The other 17 are 4 ComfoCool entries and 13 uncertain
 entries requiring separate work. Experimental PDOs 305/306 are outside that
 inventory and deliberately retain unscaled, unitless raw labels.
 
@@ -51,7 +51,9 @@ The owner-approved fan experiment restored Auto/Medium/Normal. Normal command
 availability is restored; read-only mode is an opt-in development guard.
 Original YAML/credentials remain unchanged; a separate development YAML, validated
 OTA image, and checksum manifest are preserved locally outside Git. KD exposes
-88 API entities, including the unitless raw candidates. Serial recovery and an
+92 API entities, including presence-gated ComfoFond readings and unitless raw
+candidates. KD reports ComfoFond absent; its -40 C/10 C defaults remain NaN.
+Serial recovery and an
 original 2025 firmware binary are not confirmed. Preheater/analog channels were
 read as zero in the current condition; active/nonzero behavior remains untested.
 
@@ -166,8 +168,10 @@ does not silently lose information. Keep this separate from added telemetry.
 - [x] Add preheater energy/current power (144/145/146), frost unbalance (228),
   bypass override (338), additional fan-mode representations (342/343), and
   analog inputs (369-372).
-- [ ] Add optional ComfoFond (416-419) and ComfoCool (784/785/802) telemetry;
-  assess other documented accessory fields individually.
+- [x] Add optional ComfoFond (416-419) with presence-gated availability; validate
+  absence on KD without presenting default values as measurements.
+- [ ] Validate installed ComfoFond operation and add optional ComfoCool
+  (784/785/802); assess other accessory fields individually.
 - [ ] Account for every remaining reference entry: implemented, optional raw
   diagnostic, uncertain, unavailable on KD, or deliberately excluded.
 - [x] Preserve existing optional PDO 226/230 packages and verify merging behavior;

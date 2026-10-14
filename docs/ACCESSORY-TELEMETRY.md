@@ -28,3 +28,11 @@ No software presence is guessed from temperature values. Malformed presence
 frames do not replace the last valid state. Real temperatures/valve operation
 require validation on a unit with the accessory installed; absence behavior can
 be checked without activating anything.
+
+### KD Absence Validation
+
+On 2026-10-14, KD reported presence `00` (false), outdoor default `70 FE`
+(signed -400, or -40 C), ground default `64 00` (100, or 10 C), and state `00`.
+All three numeric entities remained NaN rather than exposing these defaults as
+real readings. No decoding errors were observed, and Auto/Medium/Normal remained
+unchanged. This validates absence handling, not actual accessory operation.
