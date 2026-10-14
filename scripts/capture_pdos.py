@@ -11,7 +11,7 @@ import time
 import yaml
 from aioesphomeapi import APIClient, LogLevel
 
-FRAME = re.compile(r"Node:\s*(\d+), PDO:\s*(\d+), rtr:\s*([01]), length:\s*(\d+), content:\s*([0-9a-fA-F.]+|n/a)")
+FRAME = re.compile(r"Node:\s*(\d+), PDO:\s*(\d+), rtr:\s*([01]), length:\s*(\d+), content:\s*([0-9a-fA-F.]+|n/a)(?=\s|$)")
 ANSI = re.compile(r"\x1b\[[0-9;]*m")
 MAX_FRAMES = 20000
 

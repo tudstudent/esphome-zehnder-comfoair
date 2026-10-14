@@ -25,6 +25,7 @@ class CaptureTests(unittest.TestCase):
     def test_malformed_logs_are_ignored(self):
         for text in ("unrelated log", "Node: 1, PDO: 212, rtr: 0, length: 2, content: E9",
                      "Node: 1, PDO: 212, rtr: 0, length: 1, content: E",
+                     "Node: 1, PDO: 212, rtr: 0, length: 1, content: E9garbage",
                      "Node: 1, PDO: 212, rtr: 0, length: 9, content: 00.00.00.00.00.00.00.00.00"):
             self.assertIsNone(capture.parse_frame(text))
 
