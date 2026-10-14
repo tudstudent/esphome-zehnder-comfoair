@@ -61,6 +61,14 @@ for (const auto &entry : std::vector<std::pair<uint16_t, sensor::Sensor *>>{
   check(entry.second->state == 65535, "preheater fields reject short frames");
 }
 check(bus.sent.empty(), "preheater telemetry cannot write heater settings");
+for (const auto &entry : std::vector<std::pair<uint16_t, sensor::Sensor *>>{
+         {369, id(analog_input_1)}, {370, id(analog_input_2)}, {371, id(analog_input_3)}, {372, id(analog_input_4)}}) {
+  bus.receive(entry.first, 75);
+  check(std::abs(entry.second->state - 7.5f) < 0.001f, "analog inputs scale tenths of a volt once");
+  bus.receive(entry.first, std::vector<uint8_t>{1, 0});
+  check(std::abs(entry.second->state - 7.5f) < 0.001f, "analog inputs reject wrong widths");
+}
+check(bus.sent.empty(), "analog telemetry never sends commands");
 
 // Literal payloads reconstruct through the actual component's public CAN boundary.
 uint32_t previous_sequence = 0;

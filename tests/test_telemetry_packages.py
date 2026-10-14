@@ -66,6 +66,15 @@ class TelemetryTests(unittest.TestCase):
         for pdo in (144, 145, 146):
             self.assertIn(f"comfoair_on_frame_case({pdo},", code)
 
+    def test_analog_units_and_scale(self):
+        package = yaml.load((ROOT / "packages/analog_inputs.yml").read_text(), Loader=Loader)
+        self.assertEqual(package["zehnder_comfoair_q"]["request_ids"], [369, 370, 371, 372])
+        for sensor in package["sensor"]:
+            self.assertEqual(sensor["unit_of_measurement"], "V")
+            self.assertEqual(sensor["filters"], [{"multiply": 0.1}])
+        code = package["canbus"][0]["on_frame"][0]["then"][0]["lambda"]
+        self.assertNotIn("send_command", code)
+
 
 if __name__ == "__main__":
     unittest.main()

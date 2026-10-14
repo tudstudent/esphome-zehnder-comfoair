@@ -56,3 +56,11 @@ Energy entities use the same `total_increasing` convention as the base energy
 sensors. Year resets and 16-bit counter wraps can occur; no software lifetime
 accumulator is synthesized. Active-heating and counter-reset behavior require
 additional seasonal validation.
+
+## Analog Inputs
+
+`packages/analog_inputs.yml` independently enables PDO 369-372, the four 0-10 V
+inputs. The UINT8 raw values are scaled by 0.1 V, matching aiocomfoconnect.
+Enabling the package does not configure input priorities or change ventilation.
+Availability depends on the installed hardware/option box; absence of a PDO
+response remains unavailable, not a synthetic zero-voltage reading.

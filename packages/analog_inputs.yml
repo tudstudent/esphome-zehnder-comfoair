@@ -1,0 +1,64 @@
+# Optional 0-10 V inputs; aiocomfoconnect scales these UINT8 values by 0.1 V.
+substitutions:
+  comfoair_canbus_id: comfoair_canbus
+
+zehnder_comfoair_q:
+  request_ids: [369, 370, 371, 372]
+
+sensor:
+  - platform: template
+    id: analog_input_1
+    name: "Analog Input 1"
+    entity_category: diagnostic
+    update_interval: never
+    device_class: voltage
+    state_class: measurement
+    unit_of_measurement: "V"
+    accuracy_decimals: 1
+    filters: [multiply: 0.1]
+  - platform: template
+    id: analog_input_2
+    name: "Analog Input 2"
+    entity_category: diagnostic
+    update_interval: never
+    device_class: voltage
+    state_class: measurement
+    unit_of_measurement: "V"
+    accuracy_decimals: 1
+    filters: [multiply: 0.1]
+  - platform: template
+    id: analog_input_3
+    name: "Analog Input 3"
+    entity_category: diagnostic
+    update_interval: never
+    device_class: voltage
+    state_class: measurement
+    unit_of_measurement: "V"
+    accuracy_decimals: 1
+    filters: [multiply: 0.1]
+  - platform: template
+    id: analog_input_4
+    name: "Analog Input 4"
+    entity_category: diagnostic
+    update_interval: never
+    device_class: voltage
+    state_class: measurement
+    unit_of_measurement: "V"
+    accuracy_decimals: 1
+    filters: [multiply: 0.1]
+
+canbus:
+  - id: !extend ${comfoair_canbus_id}
+    on_frame:
+      - can_id: 0x40
+        can_id_mask: 0x1f003fc0
+        use_extended_id: true
+        remote_transmission_request: false
+        then:
+          - lambda: |-
+              switch (id(comfoair)->get_pdo_id_from_can_id (can_id)) {
+                  comfoair_on_frame_case(369, id(comfoair), analog_input_1, true);
+                  comfoair_on_frame_case(370, id(comfoair), analog_input_2, true);
+                  comfoair_on_frame_case(371, id(comfoair), analog_input_3, true);
+                  comfoair_on_frame_case(372, id(comfoair), analog_input_4, true);
+              }
