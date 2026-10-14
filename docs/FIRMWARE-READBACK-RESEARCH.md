@@ -76,3 +76,29 @@ https://github.com/michaelarnauts/aiocomfoconnect/issues/54#issuecomment-2965330
 A retrieved firmware image could reveal PDO registration tables, sensor-unit
 properties, type declarations, pressure scaling, and enum meanings. That is a
 useful research goal, not a guarantee that an image is currently readable.
+
+## Owner Constraint: Readback Without Erasing
+
+The owner requests reverse engineering and extraction without erasing. Treat that
+as a hard requirement, not a reason to try the programming path as initialization.
+The only candidate operations are verified FUP register/block reads and their
+documented read-flow acknowledgments. No ProgramBegin, Program, ProgramEnd,
+reset, factory-mode commands, readout-protection changes, or guessed mode switches.
+
+"All blocks" must mean every block shown to be readable by a verified map, not
+blind probing of all 256 possible block IDs. Protected or inaccessible regions
+must be reported as such; never attempt unlocking, which can trigger mass erase
+on some microcontrollers. A read can still pause operation even if it does not
+erase, so normal-mode behavior and recovery remain prerequisites for live tests.
+
+The GitHub search found FUP message definitions and wrapper dispatch tables, but
+not a demonstrated direct-CAN Q600 reader or a verified register/block map. No
+readback request has been sent. The concrete offline next step is inspecting the
+ComfoControl app/service updater to recover those details; an exported Android APK
+or updater package would help even when no firmware image is available.
+
+Once the protocol is verified, any dumper must enforce a read-only operation
+whitelist, bounded block sizes/timeouts and transfer rates, correct chunk ordering
+and final markers, private output files, and per-block SHA-256 checks. Repeat
+reads where safe to check consistency. Do not describe a partial image as a full
+flash backup or assume it includes bootloader/configuration memory.
