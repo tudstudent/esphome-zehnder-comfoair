@@ -4,6 +4,19 @@ auto &bus = *id(test_bus);
 check(bus.sent.empty(), "setup must not write ventilation settings");
 bus.sent.clear();
 
+for (const auto &entry : std::vector<std::pair<uint16_t, sensor::Sensor *>>{
+         {369, id(analog_input_1)}, {370, id(analog_input_2)}, {371, id(analog_input_3)}, {372, id(analog_input_4)}}) {
+  bus.receive(entry.first, 75);
+  check(std::abs(entry.second->state - 7.5f) < 0.001f, "analog UINT8 value scales to volts once");
+  bus.receive(entry.first, std::vector<uint8_t>{1, 0});
+  check(std::abs(entry.second->state - 7.5f) < 0.001f, "analog input rejects wrong widths");
+  bus.receive(entry.first, std::vector<uint8_t>{});
+  check(std::abs(entry.second->state - 7.5f) < 0.001f, "empty analog frame preserves prior reading");
+  bus.receive(entry.first, 0);
+  check(entry.second->state == 0, "zero is a legitimate device reading");
+}
+check(bus.sent.empty(), "analog telemetry never writes ventilation settings");
+
 // Literal payloads reconstruct through the actual component's public CAN boundary.
 uint32_t previous_sequence = 0;
 for (size_t length : {8u, 9u, 14u, 15u, 4u}) {
@@ -46,13 +59,13 @@ for (const auto &entry : std::vector<std::pair<uint16_t, sensor::Sensor *>>{
          {215, id(avoided_heating_total)}, {216, id(avoided_cooling_actual)},
          {217, id(avoided_cooling_ytd)}, {218, id(avoided_cooling_total)}}) {
   bus.receive(entry.first, std::vector<uint8_t>{0x40, 0x9c}); // 40000 unsigned
-  check(entry.second->raw_state == 40000, "documented UINT16 PDO retains values above 32767");
+  check(entry.second->get_raw_state() == 40000, "documented UINT16 PDO retains values above 32767");
 }
 bus.receive(276, std::vector<uint8_t>{0x85, 0xff}); // -123 tenths C
 check(std::abs(id(outdoor_air_temp).state + 12.3f) < 0.001f, "INT16 PDO preserves negative temperature");
 for (const auto &payload : std::vector<std::vector<uint8_t>>{{}, {1, 2, 3}, {1, 2, 3, 4, 5}}) {
   bus.receive(129, payload);
-  check(id(energy_ytd).raw_state == 40000, "unsupported PDO widths do not publish invented state");
+  check(id(energy_ytd).get_raw_state() == 40000, "unsupported PDO widths do not publish invented state");
 }
 check(bus.sent.empty(), "numeric PDO decoding never sends control commands");
 
@@ -170,6 +183,33 @@ for (bool mode_first : {false, true}) {
     check(bus.sent.empty(), "fan/mode feedback must not change the unit's mode or level");
   }
 }
+
+// Issue #110: changing the fan level in permanent manual mode starts preset timer 1,
+// so PDO 49 reports 1 while the manual-mode instance (PDO 56) is still active.
+bus.receive(56, 255);
+bus.receive(49, 5);
+check(id(operating_mode).state == "Manual (permanent)", "PDO 49 = 5 is permanent manual mode");
+bus.receive(56, 1);
+bus.sent.clear();
+auto issue_call = id(fan_level_select).make_call();
+issue_call.set_option("High");
+issue_call.perform();
+check(id(operating_mode).state == "Manual (permanent)" && bus.sent.size() == 2 && bus.sent[1].data[6] == 3,
+      "fan selection in permanent manual mode sends the level timer");
+bus.receive(65, 3);
+bus.receive(49, 1);
+bus.receive(81, std::vector<uint8_t>{0xff, 0xff, 0xff, 0xff});
+check(id(operating_mode).state == "Manual (permanent)" && id(next_fan_change_in).state == "n/a",
+      "PDO 49 = 1 with manual mode active and no countdown stays permanent");
+bus.receive(56, 255);
+check(id(operating_mode).state == "Manual (limited)", "PDO 49 = 1 without manual mode is limited manual");
+bus.receive(49, 1);
+bus.receive(56, 1);
+check(id(operating_mode).state == "Manual (permanent)",
+      "late manual-mode feedback refines an already-published PDO 49 = 1");
+bus.receive(56, 255);
+bus.receive(49, 255);
+bus.receive(65, 0);
 
 // Feedback suppression must not suppress genuine user controls.
 bus.sent.clear();
