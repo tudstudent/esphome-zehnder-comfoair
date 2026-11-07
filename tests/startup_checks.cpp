@@ -4,6 +4,51 @@ auto &bus = *id(test_bus);
 check(bus.sent.empty(), "setup must not write ventilation settings");
 bus.sent.clear();
 
+// Exercise the production decoder in the normal, sanitized, and bounds-checked host runs.
+{
+  using namespace zehnder_comfoair_q;
+  PdoValue value;
+  check(decode_pdo_value(PdoType::UINT8, {255}, value) && value.raw == 255 && !value.is_signed, "UINT8 sentinel");
+  check(decode_pdo_value(PdoType::UINT16, {0xff, 0xff}, value) && value.raw == 65535, "UINT16 maximum");
+  check(decode_pdo_value(PdoType::UINT32, {0xff, 0xff, 0xff, 0xff}, value) && value.raw == 4294967295ULL, "UINT32 sentinel");
+  check(decode_pdo_value(PdoType::INT8, {0x80}, value) && value.signed_value() == -128, "INT8 minimum");
+  check(decode_pdo_value(PdoType::INT8, {0xff}, value) && value.signed_value() == -1, "INT8 negative one");
+  check(decode_pdo_value(PdoType::INT8, {0x7f}, value) && value.signed_value() == 127, "INT8 maximum");
+  check(decode_pdo_value(PdoType::INT16, {0x85, 0xff}, value) && value.signed_value() == -123, "INT16 negative temperature");
+  check(decode_pdo_value(PdoType::INT16, {0, 0x80}, value) && value.signed_value() == -32768, "INT16 minimum");
+  check(decode_pdo_value(PdoType::INT16, {0xff, 0x7f}, value) && value.signed_value() == 32767, "INT16 maximum");
+  check(decode_pdo_value(PdoType::INT64, {0, 0, 0, 0, 0, 0, 0, 0x80}, value) &&
+        value.signed_value() == INT64_MIN, "INT64 minimum without signed overflow");
+  check(decode_pdo_value(PdoType::INT64, {0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x7f}, value) &&
+        value.signed_value() == INT64_MAX, "INT64 maximum");
+  check(decode_pdo_value(PdoType::INT64, {0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff}, value) &&
+        value.signed_value() == -1 && value.raw == UINT64_MAX, "INT64 negative one retains bitset");
+  check(decode_pdo_value(PdoType::BOOL, {0}, value) && value.raw == 0, "BOOL false");
+  check(decode_pdo_value(PdoType::BOOL, {1}, value) && value.raw == 1, "BOOL true");
+  check(!decode_pdo_value(PdoType::BOOL, {2}, value) && value.raw == 1, "invalid BOOL preserves output");
+  for (auto type : {PdoType::BOOL, PdoType::UINT8, PdoType::UINT16, PdoType::UINT32,
+                    PdoType::INT8, PdoType::INT16, PdoType::INT64}) {
+    for (size_t width = 0; width <= 9; width++) {
+      if (width == pdo_type_size(type)) continue;
+      check(!decode_pdo_value(type, std::vector<uint8_t>(width, 0), value), "reject every incorrect width");
+    }
+  }
+  check(!decode_pdo_value(PdoType::NONE, {}, value), "unsupported type is rejected");
+  check(decode_pdo(129, {0x40, 0x9c}, value) && value.raw == 40000, "declared UINT16 preserves high values");
+  check(!decode_pdo(129, {1}, value) && value.raw == 40000, "known PDO rejects wrong supported width");
+  check(!decode_pdo(129, {1, 0, 0, 0}, value) && value.raw == 40000, "known PDO rejects four-byte UINT16");
+  check(!decode_pdo(212, {233}, value) && value.raw == 40000, "short target has no alternate decoding");
+  check(decode_pdo(212, {0x2c, 1}, value) && value.signed_value() == 300, "registry target width");
+  check(!decode_pdo(212, {1, 0, 0, 0}, value), "unverified target width rejected");
+  check(decode_pdo(81, {0, 0, 0, 0x80}, value) && value.raw == 2147483648ULL && !value.is_signed, "unsigned timer high bit");
+  check(decode_pdo(230, {0, 0, 0, 0, 0, 0x20, 0, 0x80}, value) &&
+        value.raw == 0x8000200000000000ULL, "full 64-bit constraint payload");
+  check(find_pdo_definition(16) && find_pdo_definition(1304), "low/high mapped IDs resolve");
+  check(!find_pdo_definition(0) && !find_pdo_definition(69) && !find_pdo_definition(305) &&
+        !find_pdo_definition(UINT16_MAX), "unknown/untyped entries are not invented");
+  check(!decode_pdo(305, {0x67, 0}, value), "unknown PDO never falls back to length inference");
+}
+
 // Literal payloads reconstruct through the actual component's public CAN boundary.
 uint32_t previous_sequence = 0;
 for (size_t length : {8u, 9u, 14u, 15u, 4u}) {
@@ -46,14 +91,24 @@ for (const auto &entry : std::vector<std::pair<uint16_t, sensor::Sensor *>>{
          {215, id(avoided_heating_total)}, {216, id(avoided_cooling_actual)},
          {217, id(avoided_cooling_ytd)}, {218, id(avoided_cooling_total)}}) {
   bus.receive(entry.first, std::vector<uint8_t>{0x40, 0x9c}); // 40000 unsigned
-  check(entry.second->raw_state == 40000, "documented UINT16 PDO retains values above 32767");
+  check(entry.second->get_raw_state() == 40000, "documented UINT16 PDO retains values above 32767");
 }
 bus.receive(276, std::vector<uint8_t>{0x85, 0xff}); // -123 tenths C
 check(std::abs(id(outdoor_air_temp).state + 12.3f) < 0.001f, "INT16 PDO preserves negative temperature");
-for (const auto &payload : std::vector<std::vector<uint8_t>>{{}, {1, 2, 3}, {1, 2, 3, 4, 5}}) {
+for (const auto &payload : std::vector<std::vector<uint8_t>>{{}, {1}, {1, 2, 3}, {1, 2, 3, 4}, {1, 2, 3, 4, 5}}) {
   bus.receive(129, payload);
-  check(id(energy_ytd).raw_state == 40000, "unsupported PDO widths do not publish invented state");
+  check(id(energy_ytd).get_raw_state() == 40000, "wrong PDO widths do not publish invented state");
 }
+bus.receive(212, std::vector<uint8_t>{233, 0});
+check(std::abs(id(profile_target_temp).state - 23.3f) < 0.001f, "two-byte target temperature");
+bus.receive(212, std::vector<uint8_t>{1});
+check(std::abs(id(profile_target_temp).state - 23.3f) < 0.001f, "short target cannot replace valid state");
+id(comfoair).publish_pdo_state(id(energy_ytd), std::vector<uint8_t>{1, 0}, 305);
+check(id(energy_ytd).get_raw_state() == 40000, "unknown PDO cannot infer a type from payload width");
+bus.receive(210, 1);
+bus.receive(210, 2);
+check(id(heating_season_raw).state == 1 && id(heating_season).state, "invalid BOOL preserves prior state");
+bus.receive(210, 0);
 check(bus.sent.empty(), "numeric PDO decoding never sends control commands");
 
 bus.receive(81, std::vector<uint8_t>{0x00, 0x00, 0x00, 0x80});
@@ -170,6 +225,33 @@ for (bool mode_first : {false, true}) {
     check(bus.sent.empty(), "fan/mode feedback must not change the unit's mode or level");
   }
 }
+
+// Issue #110: changing the fan level in permanent manual mode starts preset timer 1,
+// so PDO 49 reports 1 while the manual-mode instance (PDO 56) is still active.
+bus.receive(56, 255);
+bus.receive(49, 5);
+check(id(operating_mode).state == "Manual (permanent)", "PDO 49 = 5 is permanent manual mode");
+bus.receive(56, 1);
+bus.sent.clear();
+auto issue_call = id(fan_level_select).make_call();
+issue_call.set_option("High");
+issue_call.perform();
+check(id(operating_mode).state == "Manual (permanent)" && bus.sent.size() == 2 && bus.sent[1].data[6] == 3,
+      "fan selection in permanent manual mode sends the level timer");
+bus.receive(65, 3);
+bus.receive(49, 1);
+bus.receive(81, std::vector<uint8_t>{0xff, 0xff, 0xff, 0xff});
+check(id(operating_mode).state == "Manual (permanent)" && id(next_fan_change_in).state == "n/a",
+      "PDO 49 = 1 with manual mode active and no countdown stays permanent");
+bus.receive(56, 255);
+check(id(operating_mode).state == "Manual (limited)", "PDO 49 = 1 without manual mode is limited manual");
+bus.receive(49, 1);
+bus.receive(56, 1);
+check(id(operating_mode).state == "Manual (permanent)",
+      "late manual-mode feedback refines an already-published PDO 49 = 1");
+bus.receive(56, 255);
+bus.receive(49, 255);
+bus.receive(65, 0);
 
 // Feedback suppression must not suppress genuine user controls.
 bus.sent.clear();
